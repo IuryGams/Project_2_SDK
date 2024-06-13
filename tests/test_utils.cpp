@@ -5,6 +5,7 @@
 #include "cronos.hpp"
 #include "apolo.hpp"
 #include "ares.hpp"
+#include "operations.hpp"
 
 #include <vector>
 
@@ -12,12 +13,6 @@
 
 namespace ees
 {
-    TEST_CASE("Testing function lowercase to uppercase")
-    {
-        std::string word = "iury gama";
-
-        REQUIRE(convert_to_uppercase(word) == "IURY GAMA"); 
-    }
 
     TEST_CASE("Testing function convert enum class to string")
     {
@@ -38,8 +33,9 @@ namespace ees
 
         SECTION("Filter objects for line Zeus") 
         {
+            Operations op;
             Lines selected_line = Lines::ZEUS;
-            std::vector<EnergyMeter> results = filter_by_line(test_line, selected_line);
+            std::vector<EnergyMeter> results = op.filter_by_line(test_line, selected_line);
             REQUIRE(results.size() == 3);
 
             for(auto &meter : results) {
