@@ -42,14 +42,14 @@ namespace ees
         int option;
         while (true)
         {
-            getline(std::cin, tip_text);
-            if (tip_text.empty())
+            getline(std::cin, tip_text); // Ensuring the value is a string
+            if (tip_text.empty()) // Checking if the answer is empty.
             {
-                std::cout << "Entrada inválida. Por favor, digite uma opção válida.\n";
+                std::cout << "Entrada inválida. Por favor, digite um digito de 1 a 7.\n";
                 continue;
             }
 
-            if (is_all_digits(tip_text))
+            if (is_all_digits(tip_text)) // Checking if the answer is a integer number.
             {
                 option = stoi(tip_text);
                 break;

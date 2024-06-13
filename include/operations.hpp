@@ -14,8 +14,6 @@ namespace ees
         auto get_meter_list() -> std::vector<EnergyMeter>;
         void read_meter_list();
         auto filter_by_line(std::vector<EnergyMeter> &energy_meters, const Lines &line) -> std::vector<EnergyMeter>;
-        void delete_line_by_id(std::vector<EnergyMeter> &meters, int &id);
-        void add_model_to_line(std::vector<EnergyMeter> &energy_meters, const Lines &line, const std::string &model);
     };
     
 } // namespace ees

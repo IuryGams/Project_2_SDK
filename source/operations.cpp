@@ -63,32 +63,4 @@ namespace ees
         return filtered_meter_list;
     }
 
-    // PROJECT 3
-
-    void Operations::add_model_to_line(std::vector<EnergyMeter> &energy_meters, const Lines &line, const std::string &model)
-    {
-        for (auto &meter : energy_meters)
-        {
-            if (meter.get_line() == line)
-            {
-                meter.set_model(model);
-                std::cout << "Modelo" << model << "adicionado com sucesso a linha: " << convert_enumline_to_string(line);
-                return;
-            }
-        }
-    }
-
-    void Operations::delete_line_by_id(std::vector<EnergyMeter> &energy_meters, int &id)
-    {
-        auto it = std::remove_if(energy_meters.begin(), energy_meters.end(),
-                                 [id](EnergyMeter &meter)
-                                 { return meter.get_id() == id; });
-
-        if (it != energy_meters.end())
-        {
-            energy_meters.erase(it, energy_meters.end());
-            std::cout << "Ação concluida com sucesso.\n";
-        }
-    };
-
 } // namespace ees

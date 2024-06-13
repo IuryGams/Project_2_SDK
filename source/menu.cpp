@@ -19,9 +19,7 @@ namespace ees
         std::cout << "4 - Mostrar linha Apolo.\n";
         std::cout << "5 - Mostrar linha Cronos.\n";
         std::cout << "6 - Mostrar linha Zeus.\n";
-        std::cout << "7 - Adicionar um modelo a uma linha.\n";
-        std::cout << "8 - Excluir um modelo.\n";
-        std::cout << "9 - Sair. \n\n";
+        std::cout << "7 - Sair. \n\n";
     }
 
     void Menu::run_menu() // Select option menu.
@@ -38,14 +36,12 @@ namespace ees
                 case 4: show_line(Lines::APOLO); break;
                 case 5: show_line(Lines::CRONOS); break;
                 case 6: show_line(Lines::ZEUS); break;
-                case 7: add_model_to_specific_line(); break;
-                case 8: delete_model(); break;
-                case 9: exit_menu(); break;
+                case 7: exit_menu(); break;
                 default:
-                    std::cout << "O menu não reconheceu o digito informado. Por gentileza, insira um digito de 1 a 9. \n\n";
+                    std::cout << "O menu não reconheceu o digito informado. Por gentileza, insira um digito de 1 a 7. \n\n";
                     break;
             };
-        } while (option != 9);
+        } while (option != 7);
     }
 
     void Menu::show_all_lines() // Show all lines
@@ -76,26 +72,6 @@ namespace ees
             std::cout << "ID: " << selectedline.get_id() << " - " << convert_enumline_to_string(selectedline.get_line()) << " " << selectedline.get_model() << std::endl;
         };
     };
-
-    void Menu::add_model_to_specific_line() 
-    {
-        Lines specific_line;
-        std::string new_model;
-        std::vector<EnergyMeter> list_energy_meters = op.get_meter_list();
-        op.add_model_to_line(list_energy_meters, specific_line, new_model);
-    }
-
-    void Menu::delete_model() 
-    {
-        int selected_id;
-        std::vector<EnergyMeter> list_energy_meters = op.get_meter_list();
-        std::cout << "Digite o ID do modelo que deseja excluir.\n";
-        std::cin >> selected_id;
-        op.delete_line_by_id(list_energy_meters, selected_id);
-        for(size_t i = 0; i < list_energy_meters.size(); i++) {
-            std::cout << "ID: " << list_energy_meters.at(i).get_id() << std::endl;
-        }
-    }
 
     void Menu::exit_menu() // Exit Menu.
     {
