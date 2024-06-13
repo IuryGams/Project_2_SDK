@@ -1,0 +1,49 @@
+cmake_minimum_required(VERSION 3.21)
+
+PROJECT(
+    PROJECT_3
+
+    LANGUAGES CXX
+)
+
+add_subdirectory(tests)
+
+add_library(
+    ${PROJECT_NAME}lib
+
+    source/utils.cpp
+    source/zeus.cpp
+    source/ares.cpp
+    source/cronos.cpp
+    source/apolo.cpp
+    source/menu.cpp
+    source/energy_meter.cpp
+    source/operations.cpp
+)
+
+add_executable(
+    ${PROJECT_NAME}
+
+    source/main.cpp
+)
+
+target_include_directories(
+    ${PROJECT_NAME}lib
+
+    PUBLIC
+        ./include
+)
+
+target_compile_features(
+    ${PROJECT_NAME}lib
+
+    PUBLIC
+        cxx_std_20
+)
+
+target_link_libraries(
+    ${PROJECT_NAME}
+
+    PRIVATE
+        ${PROJECT_NAME}lib
+)
