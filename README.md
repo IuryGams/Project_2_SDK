@@ -8,5 +8,5 @@
 6. Apos a finalização do comando anterior será possivel executar o programa que estará dentro da pasta Debug. Logo, teremos que acessar a pasta e executar o programa. Utilize o comando -> Debug\PROJECT_3.exe 
 
 
-Afim de agilizar o processo basta colocar a instrução a baixo apos abrir o terminal.
+Afim de agilizar o processo basta colocar a instrução a baixo apos abrir o terminal. <br/>
     <b> mkdir build && cd build && cmake .. && cmake --build .  && Debug\PROJECT_3.exe <b>
