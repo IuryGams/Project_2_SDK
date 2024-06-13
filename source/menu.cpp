@@ -67,7 +67,7 @@ namespace ees
     void Menu::show_line(const Lines &name_line) // Show a specific line
     {
         std::vector<EnergyMeter> list_of_energy_meters = op.get_meter_list(); // Returning all models.
-        std::vector<EnergyMeter> found_list_line = filter_by_line(list_of_energy_meters, name_line); // Returning a selected line.
+        std::vector<EnergyMeter> found_list_line = op.filter_by_line(list_of_energy_meters, name_line); // Returning a selected line.
         
         // Show selected Line.
         std::cout << "Segue abaixo a lista de modelos da linha " << convert_enumline_to_string(found_list_line.at(0).get_line()) << ".\n";
@@ -82,7 +82,7 @@ namespace ees
         Lines specific_line;
         std::string new_model;
         std::vector<EnergyMeter> list_energy_meters = op.get_meter_list();
-        add_model_to_line(list_energy_meters, specific_line, new_model);
+        op.add_model_to_line(list_energy_meters, specific_line, new_model);
     }
 
     void Menu::delete_model() 
@@ -91,7 +91,7 @@ namespace ees
         std::vector<EnergyMeter> list_energy_meters = op.get_meter_list();
         std::cout << "Digite o ID do modelo que deseja excluir.\n";
         std::cin >> selected_id;
-        delete_by_id(list_energy_meters, selected_id);
+        op.delete_line_by_id(list_energy_meters, selected_id);
         for(size_t i = 0; i < list_energy_meters.size(); i++) {
             std::cout << "ID: " << list_energy_meters.at(i).get_id() << std::endl;
         }
