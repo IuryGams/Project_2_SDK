@@ -45,7 +45,7 @@ namespace ees
             getline(std::cin, tip_text); // Ensuring the value is a string
             if (tip_text.empty()) // Checking if the answer is empty.
             {
-                std::cout << "Entrada inválida. Por favor, digite um digito de 1 a 7.\n";
+                std::cout << "Entrada inválida. Por favor, digite um digito de 1 a 9.\n";
                 continue;
             }
 

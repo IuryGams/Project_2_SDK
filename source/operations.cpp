@@ -58,9 +58,26 @@ namespace ees
     {
         std::vector<EnergyMeter> filtered_meter_list = {};
         std::copy_if(energy_meters.begin(), energy_meters.end(), std::back_inserter(filtered_meter_list),
-                     [line](EnergyMeter meter)
+                     [&line](EnergyMeter meter)
                      { return meter.get_line() == line; });
         return filtered_meter_list;
+    }
+
+    void Operations::add_new_model(std::vector<EnergyMeter> &energy_meters, Lines line, std::string model)
+    {   
+        energy_meters.push_back(EnergyMeter(line, model));
+    };
+
+    auto Operations::remove_model(std::vector<EnergyMeter> &meters, int id) -> bool
+    {
+        for(auto it = meters.begin(); it != meters.end(); ++it) {
+            if(it->get_id() == id) 
+            {
+                meters.erase(it);
+                return true;
+            }
+        }
+        return false;
     }
 
 } // namespace ees

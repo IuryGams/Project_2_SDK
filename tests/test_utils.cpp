@@ -9,8 +9,6 @@
 
 #include <vector>
 
-// auto filter_by_line(std::vector<EnergyMeter> &energy_meters,const Lines &line) -> std::vector<EnergyMeter>;
-
 namespace ees
 {
 
