@@ -36,7 +36,7 @@ namespace ees
         return true;
     }
 
-    auto read_option_menu() -> int
+    auto convert_string_to_int() -> int
     {
         std::string tip_text;
         int option;
@@ -45,7 +45,7 @@ namespace ees
             getline(std::cin, tip_text); // Ensuring the value is a string
             if (tip_text.empty()) // Checking if the answer is empty.
             {
-                std::cout << "Entrada inválida. Por favor, digite um digito de 1 a 9.\n";
+                std::cout << "Entrada inválida. Por favor, digite um dígito de 1 a 9.\n";
                 continue;
             }
 

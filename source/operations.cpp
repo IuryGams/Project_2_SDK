@@ -35,49 +35,75 @@ namespace ees
             };
     }
 
-    void Operations::add_new_meter(const EnergyMeter &meter)
-    {
-        meter_list.push_back(meter);
-    }
-
     auto Operations::get_meter_list() -> std::vector<EnergyMeter>
     {
         return meter_list;
     }
 
-    void Operations::read_meter_list()
+    auto Operations::find_meter_by_id(int &id) -> EnergyMeter*
     {
-        std::cout << "ID" << " | " << "LINHA" << " | " << "MODELO" << std::endl;
-        for (int i = 0; i < meter_list.size(); i++)
+        auto it = std::find_if(meter_list.begin(), meter_list.end(), [&id](EnergyMeter &meter) 
+            {return meter.get_id() == id; } 
+        );
+
+        if(it != meter_list.end()) 
         {
-            std::cout << meter_list.at(i).get_id() << " | " << convert_enumline_to_string(meter_list.at(i).get_line()) << " | " << meter_list.at(i).get_model() << std::endl;
+            return &(*it);
+        } else {
+            std::cout << "O medidor de energia com o ID " << id << " não foi encontrado!\n"; // EnergyMeter not found;
+            return nullptr;
         }
-    }
+    } 
 
     auto Operations::filter_by_line(std::vector<EnergyMeter> &energy_meters, const Lines &line) -> std::vector<EnergyMeter>
+
     {
-        std::vector<EnergyMeter> filtered_meter_list = {};
+        std::vector<EnergyMeter> filtered_meter_list = {}; 
         std::copy_if(energy_meters.begin(), energy_meters.end(), std::back_inserter(filtered_meter_list),
                      [&line](EnergyMeter meter)
                      { return meter.get_line() == line; });
         return filtered_meter_list;
     }
+    
+    // CRUD
 
-    void Operations::add_new_model(std::vector<EnergyMeter> &energy_meters, Lines line, std::string model)
-    {   
-        energy_meters.push_back(EnergyMeter(line, model));
-    };
-
-    auto Operations::remove_model(std::vector<EnergyMeter> &meters, int id) -> bool
+    void Operations::add_new_model(const EnergyMeter & new_meter) // CREATE 
     {
-        for(auto it = meters.begin(); it != meters.end(); ++it) {
-            if(it->get_id() == id) 
-            {
-                meters.erase(it);
-                return true;
-            }
+        meter_list.push_back(new_meter);
+        std::cout << "O medidor de energia foi adicionado com sucesso! \n\n";
+    }
+
+    void Operations::read_meter_list() // READ
+    {
+        std::cout << "ID" << " | " << "LINHA" << " | " << "MODELO" << std::endl;
+        for (EnergyMeter meter : meter_list)
+        {
+            std::cout << meter.get_id() << " | " << convert_enumline_to_string(meter.get_line()) << " | " << meter.get_model() << std::endl;
         }
-        return false;
+    }
+
+    void Operations::update_meter(int &id, Lines &new_line, std::string &new_model) // UPDATE
+    {
+        EnergyMeter* meter = find_meter_by_id(id);
+
+        if(meter)
+        {
+            meter->set_line(new_line);
+            meter->set_model(new_model);
+        };
+    }
+
+    void Operations::remove_model(int id) // DELETE
+    {
+        EnergyMeter* meter = find_meter_by_id(id);
+
+        if(meter) // Checking if the EnergyMeter is found;
+        { 
+            meter_list.erase(std::remove_if(meter_list.begin(), meter_list.end(), [&id](EnergyMeter &meter) 
+                { return meter.get_id() == id; })); // Deleting EnergyMeter found of vector;
+
+            std::cout << "O medido de energia com ID " << meter->get_id() << " foi deletado com sucesso!\n\n";
+        };
     }
 
 } // namespace ees

@@ -15,8 +15,8 @@ namespace ees {
             void show_all_lines();
             void show_all_models();
             void show_line(const Lines &name_line);
-            void selected_new_meter();
-            void selected_remove_meter();
+            void create_new_meter();
+            void delete_meter();
             void exit_menu();
     };
 

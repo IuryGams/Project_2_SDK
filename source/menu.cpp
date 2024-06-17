@@ -2,6 +2,10 @@
 #include "operations.hpp"
 #include "enums.hpp"
 #include "utils.hpp"
+#include "ares.hpp"
+#include "apolo.hpp"
+#include "cronos.hpp"
+#include "zeus.hpp"
 
 #include <vector>
 #include <cstring>
@@ -22,6 +26,8 @@ namespace ees
         std::cout << "7 - Adicionar um novo modelo.\n";
         std::cout << "8 - Remover um modelo.\n";
         std::cout << "9 - Sair. \n\n";
+
+        std::cout << "Informe o dígito: ";
     }
 
     void Menu::show_lines_menu()
@@ -42,7 +48,7 @@ namespace ees
         int option;
         do {
             show_inicial_menu();
-            option = read_option_menu();
+            option = convert_string_to_int();
             switch (option)
             {
                 case 1: show_all_lines();                   break;
@@ -51,8 +57,8 @@ namespace ees
                 case 4: show_line(Lines::APOLO);            break;
                 case 5: show_line(Lines::CRONOS);           break;
                 case 6: show_line(Lines::ZEUS);             break;
-                case 7: selected_new_meter();               break;
-                case 8: selected_remove_meter(); break;
+                case 7: create_new_meter();               break;
+                case 8: delete_meter(); break;
                 case 9: exit_menu();                        break;
                 default:
                     std::cout << "O menu não reconheceu o digito informado. Por gentileza, insira um digito de 1 a 9. \n\n";
@@ -61,7 +67,7 @@ namespace ees
         } while (option != 9);
     }
 
-    void Menu::show_all_lines() // Show all lines
+    void Menu::show_all_lines() // Show all lines;
     {
         std::cout << std::endl;
         std::vector<Lines> lines = {Lines::ARES, Lines::APOLO, Lines::CRONOS, Lines::ZEUS};
@@ -90,32 +96,38 @@ namespace ees
         };
     };
 
-    void Menu::selected_new_meter() 
+    void Menu::create_new_meter() 
     {
         int selected_option;
         std::string model_name;
-        show_lines_menu();
         std::vector<EnergyMeter> list_of_meter = op.get_meter_list();
 
-        selected_option = read_option_menu();
-        std::cout << "\n Agora informe o nome do modelo desejado: ";
-        std::cin >> model_name;
+        show_lines_menu();
+        selected_option = convert_string_to_int(); 
+        std::cout << "Agora informe o nome do modelo desejado: ";
+        getline(std::cin, model_name);
+
         switch (selected_option)
         {
-        case 1: op.add_new_model(list_of_meter, Lines::ARES, model_name);            break;
-        
+            case 1: op.add_new_model(Ares(model_name)); break;
+            case 2: op.add_new_model(Apolo(model_name)); break;
+            case 3: op.add_new_model(Cronos(model_name)); break;
+            case 4: op.add_new_model(Zeus(model_name)); break;
         default:
-            std::cout << "Essa linha não existe.\n";
+            std::cout << "Opção inválida.\n";
             break;
-        }
-        for(auto meter : list_of_meter ) {
-            std::cout << meter.get_id() << " | " << convert_enumline_to_string( meter.get_line() ) << " | " << meter.get_model() << std::endl;
         }
     }
 
-    void Menu::selected_remove_meter()
+    void Menu::delete_meter()
     {
+        int id;
 
+        std::cout << "Digite o ID do modelo: ";
+        id = convert_string_to_int();
+        
+
+        op.remove_model(id);
     }
 
     void Menu::exit_menu() // Exit Menu.
