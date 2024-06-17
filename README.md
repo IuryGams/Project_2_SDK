@@ -1,4 +1,4 @@
-<h1>Project 2 SDK</h1>
+<h1>Project Integration SDK</h1>
 
 1. Abra o Terminal apertando a tecla Aspas duplas ( " )
 2. Crie uma pasta chama de build utilizando o comando -> mkdir build
