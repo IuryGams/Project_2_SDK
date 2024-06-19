@@ -7,15 +7,15 @@ namespace ees
 
     EnergyMeter::EnergyMeter(Lines line, const std::string &model) : id(next_id++), line(line), model(model) {};
 
-    int EnergyMeter::get_id()
+    int EnergyMeter::get_id() const
     {
         return id;
     }
-    Lines EnergyMeter::get_line()
+    Lines EnergyMeter::get_line() const
     {
         return line;
     }
-    std::string EnergyMeter::get_model()
+    std::string EnergyMeter::get_model() const
     {
         return model;
     }
