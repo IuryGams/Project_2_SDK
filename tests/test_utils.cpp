@@ -1,3 +1,4 @@
+#pragma once
 #include "catch.hpp"
 #include "utils.hpp"
 #include "enums.hpp"
@@ -7,6 +8,7 @@
 #include "ares.hpp"
 #include "operations.hpp"
 
+#include <sstream>
 #include <vector>
 
 namespace ees
@@ -14,48 +16,66 @@ namespace ees
 
     TEST_CASE("Testing function convert enum class to string")
     {
-        REQUIRE(convert_enumline_to_string(Lines::APOLO) == "APOLO");
-    }
+        std::string line = "APOLO";
+        Lines apolo_line = Lines::APOLO;
 
-    TEST_CASE("Checking function get_meter_list")
-    {
-        Operations ops;
-        auto meter_list = ops.get_meter_list();
-
-        REQUIRE(meter_list.size() == 17);
-    }
-
-    TEST_CASE("Testing the filter for a selected line")
-    {
-        std::vector<EnergyMeter> test_line;
-
-        for (size_t i = 0; i < 3; i++)
-        {
-            test_line.push_back(Zeus(std::to_string(i + 1000)));
-            test_line.push_back(Cronos(std::to_string(i + 1000)));
-            test_line.push_back(Ares(std::to_string(i + 1000)));
-            test_line.push_back(Apolo(std::to_string(i + 1000)));
-        };
-
-        SECTION("Filter objects for line Zeus")
-        {
-            Operations op;
-            Lines selected_line = Lines::ZEUS;
-            std::vector<EnergyMeter> results = op.filter_by_line(test_line, selected_line);
-            REQUIRE(results.size() == 3);
-
-            for (auto &meter : results)
-            {
-                REQUIRE(meter.get_line() == selected_line);
-            };
-        }
-    }
+        REQUIRE(convert_enumline_to_string(apolo_line) == line);
+    };
 
     TEST_CASE("Testing function is_all_digits")
     {
-        std::string text = "I am developer";
 
-        REQUIRE(is_all_digits(text) == false);
-    }
+        SECTION("Receiving a string value with letters.")
+        {
+            std::string text = "I am developer";
+            bool result = is_all_digits(text);
+
+            REQUIRE(result == false);
+        };
+
+        SECTION("Receiving a string value with integer numbers")
+        {
+            std::string numbers = "123";
+            
+            REQUIRE(is_all_digits(numbers));
+        };
+    };
+
+    TEST_CASE("Testing function convert string to integer number.")
+    {
+        // std::stringstream input_stream;
+        // std::stringstream output_stream;
+
+        // // Redirect cin and cout
+        // std::streambuf *old_cin = std::cin.rdbuf(input_stream.rdbuf());
+        // std::streambuf *old_cout = std::cout.rdbuf(output_stream.rdbuf());
+
+        // SECTION("Valid input")
+        // {
+        //     input_stream.str("123\n"); // Simulate input "123"
+        //     int result = convert_string_to_int();
+        //     REQUIRE(result == 123);
+        // };
+
+        // SECTION("Empty input")
+        // {
+        //     input_stream.str("\n"); // Simulate input "\n" (empty)
+        //     int result = convert_string_to_int();
+        //     // Check if the function handles empty input properly
+        //     REQUIRE(output_stream.str() == "Entrada inválida. Por favor, digite um dígito de 1 a 9.\n");
+        // };
+
+        // SECTION("Invalid input")
+        // {
+        //     input_stream.str("abc\n"); // Simulate input "abc"
+        //     int result = convert_string_to_int();
+        //     // Check if the function handles invalid input properly
+        //     REQUIRE(output_stream.str() == "Entrada inválida. Por favor, insira um número.\n");
+        // };
+
+        // // Restore cin and cout
+        // std::cin.rdbuf(old_cin);
+        // std::cout.rdbuf(old_cout);
+    };
 
 } // namespace ees

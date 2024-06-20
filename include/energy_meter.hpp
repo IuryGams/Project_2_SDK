@@ -16,9 +16,9 @@ namespace ees
 
         public:
             EnergyMeter(Lines line, const std::string &model);
-            auto get_id() -> int;
-            auto get_line() -> Lines;
-            auto get_model() -> std::string;
+            auto get_id() const -> int;
+            auto get_line() const -> Lines;
+            auto get_model() const -> std::string;
 
             void set_line(const Lines &line);
             void set_model(const std::string &model);

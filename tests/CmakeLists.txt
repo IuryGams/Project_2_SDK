@@ -1,7 +1,9 @@
 add_executable(
     ${PROJECT_NAME}Tests
     
+    test_operations.cpp
     test_utils.cpp
+    test_energy_meter.cpp
     main.cpp
 )
 
