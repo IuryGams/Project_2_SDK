@@ -11,7 +11,7 @@ target_include_directories(
     ${PROJECT_NAME}Tests
 
     PRIVATE
-        ./
+        ${CMAKE_CURRENT_SOURCE_DIR}
 )
 
 target_compile_features(
@@ -24,6 +24,6 @@ target_compile_features(
 target_link_libraries(
     ${PROJECT_NAME}Tests
     PRIVATE
-    ${PROJECT_NAME}lib
+    ${PROJECT_NAME}_lib
 
 )

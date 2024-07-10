@@ -1,49 +1,68 @@
-cmake_minimum_required(VERSION 3.21)
+    cmake_minimum_required(VERSION 3.21)
 
-PROJECT(
-    PROJECT_3
+    set(CMAKE_TOOLCHAIN_FILE "C:/Dev/vcpkg/scripts/buildsystems/vcpkg.cmake")
+    set(CMAKE_PREFIX_PATH "C:/Dev/vcpkg/installed/x64-windows")
+    set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+    
+    PROJECT(
+        PROJECT_3
+        
+        LANGUAGES CXX
+    )
+    set(CMAKE_BUILD_TYPE "Release")
 
-    LANGUAGES CXX
-)
+    add_subdirectory(proto)
+    add_subdirectory(tests)
 
-add_subdirectory(tests)
+    file(GLOB SERVICES_FILES_CPP ./source/services/*.cpp)
 
-add_library(
-    ${PROJECT_NAME}lib
+    add_library(
+        ${PROJECT_NAME}_lib
 
-    source/utils.cpp
-    source/zeus.cpp
-    source/ares.cpp
-    source/cronos.cpp
-    source/apolo.cpp
-    source/menu.cpp
-    source/energy_meter.cpp
-    source/operations.cpp
-)
+        source/utils.cpp
+        source/zeus.cpp
+        source/ares.cpp
+        source/cronos.cpp
+        source/apolo.cpp
+        source/menu.cpp
+        source/energy_meter.cpp
+        source/operations.cpp
+        source/server.cpp
+        ${SERVICES_FILES_CPP}
+    )
 
-add_executable(
-    ${PROJECT_NAME}
+    add_executable(
+        ${PROJECT_NAME}
 
-    source/main.cpp
-)
+        source/main.cpp
+    )
 
-target_include_directories(
-    ${PROJECT_NAME}lib
+    target_include_directories(
+        ${PROJECT_NAME}_lib
 
-    PUBLIC
-        ./include
-)
+        PUBLIC
+            ./include
+            ./include/services
+            ${CMAKE_CURRENT_BINARY_DIR}/proto
+    )
 
-target_compile_features(
-    ${PROJECT_NAME}lib
+    target_compile_features(
+        ${PROJECT_NAME}_lib
 
-    PUBLIC
-        cxx_std_20
-)
+        PUBLIC
+            cxx_std_20
+    )
 
-target_link_libraries(
-    ${PROJECT_NAME}
+    target_link_libraries(
+        ${PROJECT_NAME}_lib
 
-    PRIVATE
-        ${PROJECT_NAME}lib
-)
+        PUBLIC
+            protolib
+    )
+
+    target_link_libraries(
+        ${PROJECT_NAME}
+
+        PUBLIC
+            ${PROJECT_NAME}_lib
+    )

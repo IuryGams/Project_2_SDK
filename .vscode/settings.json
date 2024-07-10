@@ -81,7 +81,8 @@
         "xloctime": "cpp",
         "xtree": "cpp",
         "ranges": "cpp",
-        "span": "cpp"
+        "span": "cpp",
+        "unordered_set": "cpp"
     },
     "C_Cpp.errorSquiggles": "enabled"
 }

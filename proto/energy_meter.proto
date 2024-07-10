@@ -1,0 +1,42 @@
+syntax = "proto3";
+
+
+service EnergyMeter
+{  
+    rpc CreateMeter(MeterInfor) returns (MeterInfor);
+    rpc ReadMeter(MeterID) returns (MeterInfor);
+    rpc UpdateMeter(MeterInfor) returns (MeterInfor);
+    rpc DeleteMeter(MeterID) returns (Empty);
+}
+
+message Empty
+{
+
+}
+
+enum Lines
+{
+    UNKNOWN = 0;
+    ARES = 1;
+    APOLO = 2;
+    CRONOS = 3;
+    ZEUS = 4;
+
+}
+
+message MeterInfor
+{
+    int32 id = 1;
+    Lines line = 2;
+    string model = 3;
+}
+
+message MeterListRequest
+{
+    repeated MeterInfor data = 1;
+}
+
+message MeterID
+{
+    int32 id = 1;
+}
