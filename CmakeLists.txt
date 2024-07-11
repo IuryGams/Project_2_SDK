@@ -1,40 +1,40 @@
     cmake_minimum_required(VERSION 3.21)
 
+    set(CMAKE_BUILD_TYPE "Release")
     set(CMAKE_TOOLCHAIN_FILE "C:/Dev/vcpkg/scripts/buildsystems/vcpkg.cmake")
     set(CMAKE_PREFIX_PATH "C:/Dev/vcpkg/installed/x64-windows")
     set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
     
     PROJECT(
-        PROJECT_3
+        PROJECT_INTEGRATION
         
         LANGUAGES CXX
     )
-    set(CMAKE_BUILD_TYPE "Release")
+    find_package(gRPC CONFIG REQUIRED)
 
     add_subdirectory(proto)
     add_subdirectory(tests)
+    add_subdirectory(client)
+    add_subdirectory(server)
 
+    file(GLOB FILES_CPP ./source/*.cpp)
     file(GLOB SERVICES_FILES_CPP ./source/services/*.cpp)
+    file(GLOB METER_FILES_CPP ./source/meters/*.cpp)
 
     add_library(
         ${PROJECT_NAME}_lib
 
-        source/utils.cpp
-        source/zeus.cpp
-        source/ares.cpp
-        source/cronos.cpp
-        source/apolo.cpp
-        source/menu.cpp
-        source/energy_meter.cpp
-        source/operations.cpp
-        source/server.cpp
+        ${FILES_CPP}
         ${SERVICES_FILES_CPP}
+        ${METER_FILES_CPP}
+        ./server/server.cpp
+        ./client/src/client.cpp
     )
 
     add_executable(
         ${PROJECT_NAME}
 
-        source/main.cpp
+        ./main.cpp
     )
 
     target_include_directories(
@@ -42,7 +42,10 @@
 
         PUBLIC
             ./include
+            ./server
             ./include/services
+            ./include/meters
+            ./client/include
             ${CMAKE_CURRENT_BINARY_DIR}/proto
     )
 

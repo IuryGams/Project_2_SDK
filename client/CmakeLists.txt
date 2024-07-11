@@ -1,0 +1,24 @@
+cmake_minimum_required(VERSION 3.21)
+
+add_executable(
+    client
+
+    src/client.cpp
+)
+
+target_include_directories(
+    client
+
+    PUBLIC
+        ${CMAKE_CURRENT_SOURCE_DIR}/../include
+        ${CMAKE_CURRENT_BINARY_DIR}/../proto
+)
+
+target_link_libraries(
+    client
+
+    PUBLIC
+        PROJECT_INTEGRATION_lib
+        gRPC::grpc++
+        protobuf::libprotobuf
+)

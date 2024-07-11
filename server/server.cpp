@@ -1,9 +1,10 @@
 #include <iostream>
 #include "energy_meter_services.hpp"
+#include "server.hpp"
 
-namespace ees
+namespace energy
 {
-    auto RunServer() -> void
+    void RunServer()
     {
         std::string server_address("0.0.0.0:50051");
         energy::EnergyMeterServiceImpl service;

@@ -2,10 +2,10 @@
 
 #include <grpcpp/grpcpp.h>
 #include "energy_meter.grpc.pb.h"
+#include "operations.hpp"
 
 namespace energy
 {
-
     class EnergyMeterServiceImpl final : public EnergyMeter::Service
     {
     public:
@@ -23,7 +23,7 @@ namespace energy
 
     private:
         std::unique_ptr<EnergyMeter::Stub> stub_;
+        ees::Operations operations_;
     };
 }
 
-auto RunServer() -> void;

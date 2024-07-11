@@ -8,6 +8,7 @@ namespace ees
     {
     private:
         std::vector<EnergyMeter> meter_list;
+        ees::Operations operations_;
     public:
         Operations();
         auto get_meter_list() -> std::vector<EnergyMeter>;
