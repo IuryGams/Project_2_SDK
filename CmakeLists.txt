@@ -14,8 +14,8 @@
 
     add_subdirectory(proto)
     add_subdirectory(tests)
-    add_subdirectory(client)
-    add_subdirectory(server)
+    # add_subdirectory(client)
+    # add_subdirectory(server)
 
     file(GLOB FILES_CPP ./source/*.cpp)
     file(GLOB SERVICES_FILES_CPP ./source/services/*.cpp)
@@ -29,6 +29,7 @@
         ${METER_FILES_CPP}
         ./server/server.cpp
         ./client/src/client.cpp
+        ./client/src/client_method.cpp
     )
 
     add_executable(

@@ -9,21 +9,21 @@ namespace energy
     class EnergyMeterServiceImpl final : public EnergyMeter::Service
     {
     public:
+        // Okay
         grpc::Status CreateMeter(
-            grpc::ServerContext *context, const MeterInfor *request, MeterInfor *reply) override;
-
+            grpc::ServerContext *context, const MeterInfor *request, MeterCompleteInfor *reply) override;
+        // Okay
+        grpc::Status GetAllMeters(
+            grpc::ServerContext *context, const Empty *request, MeterListRequest *reply) override;
+        // Okay
         grpc::Status ReadMeter(
-            grpc::ServerContext *context, const MeterID *request, MeterInfor *reply) override;
-
-        grpc::Status UpdateMeter(
-            grpc::ServerContext *context, const MeterInfor *request, MeterInfor *reply) override;
-
+            grpc::ServerContext *context, const MeterID *request, MeterCompleteInfor *reply) override; 
+        // Okay
         grpc::Status DeleteMeter(
-            grpc::ServerContext *context, const MeterID *request, Empty *reply) override;
+            grpc::ServerContext *context, const MeterID *request, ResponseStatus *reply) override;
 
-    private:
-        std::unique_ptr<EnergyMeter::Stub> stub_;
-        ees::Operations operations_;
+        grpc::Status GetAllLines(
+            grpc::ServerContext *context, const Empty *request, AllLinesRequest *reply ) override;
     };
 }
 

@@ -43,7 +43,7 @@ namespace ees
         return meter_list;
     }
 
-    auto Operations::find_meter_by_id(int &id) -> EnergyMeter
+    auto Operations::find_meter_by_id(const int &id) -> EnergyMeter
     {
         auto it = std::find_if(meter_list.begin(), meter_list.end(), [&id](EnergyMeter &meter)
                                { return meter.get_id() == id; });
@@ -108,4 +108,8 @@ namespace ees
         }
     }
 
+    auto Operations::get_all_lines() -> std::vector<Lines>
+    {
+        return {Lines::ARES, Lines::APOLO, Lines::CRONOS, Lines::ZEUS, Lines::UNKNOWN};
+    }
 } // namespace ees

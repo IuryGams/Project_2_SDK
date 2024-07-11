@@ -3,16 +3,16 @@ syntax = "proto3";
 
 service EnergyMeter
 {  
-    rpc CreateMeter(MeterInfor) returns (MeterInfor);
-    rpc ReadMeter(MeterID) returns (MeterInfor);
+    rpc GetAllLines(Empty) returns (AllLinesRequest);
+    rpc GetAllMeters(Empty) returns (MeterListRequest);
+
+    rpc CreateMeter(MeterInfor) returns (MeterCompleteInfor);
+    rpc ReadMeter(MeterID) returns (MeterCompleteInfor);
     rpc UpdateMeter(MeterInfor) returns (MeterInfor);
-    rpc DeleteMeter(MeterID) returns (Empty);
+    rpc DeleteMeter(MeterID) returns (ResponseStatus);
 }
 
-message Empty
-{
-
-}
+message Empty {}
 
 enum Lines
 {
@@ -21,10 +21,15 @@ enum Lines
     APOLO = 2;
     CRONOS = 3;
     ZEUS = 4;
-
 }
 
 message MeterInfor
+{
+    Lines line = 1;
+    string model = 2;
+}
+
+message MeterCompleteInfor
 {
     int32 id = 1;
     Lines line = 2;
@@ -33,10 +38,26 @@ message MeterInfor
 
 message MeterListRequest
 {
-    repeated MeterInfor data = 1;
+    repeated MeterCompleteInfor meters = 1;
 }
 
 message MeterID
 {
     int32 id = 1;
+}
+
+message ResponseStatus
+{
+    enum ReplyStatus
+    {
+        COMMAND_EXECUTION_SUCCESSFUL = 0;
+        COMMAND_EXECUTION_FAILED = 1;
+    }
+
+    ReplyStatus status = 1;
+}
+
+message AllLinesRequest
+{
+    repeated Lines lines = 1;
 }

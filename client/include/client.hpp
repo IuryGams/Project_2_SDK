@@ -10,9 +10,10 @@ namespace energy
     public:
         EnergyMeterClient(std::shared_ptr<grpc::Channel> channel);
 
-        void CreateMeter(int id, Lines line, const std::string &model);
+        void CreateMeter(Lines line, const std::string &model);
         void ReadMeter(int id);
-        void UpdateMeter(int id, Lines line, const std::string &model);
         void DeleteMeter(int id);
     };
+
+    void RunClient();
 }
