@@ -3,9 +3,7 @@
 
 namespace ees
 {
-    int EnergyMeter::next_id = 1;
-
-    EnergyMeter::EnergyMeter(Lines line, const std::string &model) : id(next_id++), line(line), model(model) {};
+    EnergyMeter::EnergyMeter(Lines line, const std::string &model) : id(next_id++), line(line), model(model) {}
 
     int EnergyMeter::get_id() const { return id; }
 

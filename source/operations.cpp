@@ -5,6 +5,7 @@
 #include "ares.hpp"
 #include "utils.hpp"
 #include "menu.hpp"
+#include "energy_meter.pb.h"
 
 #include <iostream>
 #include <algorithm>
@@ -60,10 +61,21 @@ namespace ees
 
     auto Operations::filter_by_line(const Lines &line) -> std::vector<EnergyMeter>
     {
-        std::vector<EnergyMeter> filtered_meter_list = {};
+        std::vector<EnergyMeter> filtered_meter_list;
+
         std::copy_if(meter_list.begin(), meter_list.end(), std::back_inserter(filtered_meter_list),
                      [&line](EnergyMeter meter)
                      { return meter.get_line() == line; });
+        return filtered_meter_list;
+    }
+
+    auto Operations::filter_by_line(const std::string &line) -> std::vector<EnergyMeter>
+    {
+        std::vector<EnergyMeter> filtered_meter_list;
+
+        std::copy_if(meter_list.begin(), meter_list.end(), std::back_inserter(filtered_meter_list),
+                     [&line](EnergyMeter meter)
+                     { return convert_enumline_to_string(meter.get_line()) == line; });
         return filtered_meter_list;
     }
 

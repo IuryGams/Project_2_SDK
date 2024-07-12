@@ -8,7 +8,7 @@
             "name": "debug",
             "type": "cppvsdbg",
             "request": "launch",
-            "program": "${workspaceFolder}/build/Debug/HelloWorld_server.exe",
+            "program": "${workspaceFolder}/build/PROJECT_INTEGRATION.exe",
             "args": [],
             "stopAtEntry": false,
             "cwd": "${workspaceFolder}/build/",

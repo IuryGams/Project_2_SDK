@@ -9,7 +9,7 @@ namespace ees
     class EnergyMeter
     {
         private:
-            static int next_id;
+            static inline int next_id = 1;
             int id;
             Lines line;
             std::string model;

@@ -1,28 +1,64 @@
 #include "utils.hpp"
 #include "operations.hpp"
 #include "menu.hpp"
+#include "energy_meter.pb.h"
 
 #include <cstring>
 #include <string>
 #include <map>
 
-
 namespace ees
 {
 
-    auto convert_enumline_to_string(const Lines &line) -> std::string
+    auto convert_enumline_to_string(const ees::Lines &line) -> std::string
     {
-        std::map<Lines, std::string> lines_to_string = {
-            {Lines::ARES, "ARES"},
-            {Lines::APOLO, "APOLO"},
-            {Lines::CRONOS, "CRONOS"},
-            {Lines::ZEUS, "ZEUS"},
-            {Lines::UNKNOWN, "UNKNOWN"},
+        std::map<ees::Lines, std::string> lines_to_string = {
+            {ees::Lines::ARES, "ARES"},
+            {ees::Lines::APOLO, "APOLO"},
+            {ees::Lines::CRONOS, "CRONOS"},
+            {ees::Lines::ZEUS, "ZEUS"},
+            {ees::Lines::UNKNOWN, "UNKNOWN"},
         };
 
         return lines_to_string.at(line);
     }
 
+    auto convert_proto_enum_to_cpp_enum(int proto_enum_value) -> ees::Lines
+    {
+        switch (proto_enum_value)
+        {
+        case 1:
+            return ees::Lines::ARES;
+        case 2:
+            return ees::Lines::APOLO;
+        case 3:
+            return ees::Lines::CRONOS;
+        case 4:
+            return ees::Lines::ZEUS;
+        default:
+            return ees::Lines::UNKNOWN;
+        }
+    }
+
+    auto convert_to_proto_enum(ees::Lines line) -> int
+    {
+        static std::map<ees::Lines, ::Lines> line_map = {
+            {ees::Lines::ARES, ::Lines::ARES},
+            {ees::Lines::APOLO, ::Lines::APOLO},
+            {ees::Lines::CRONOS, ::Lines::CRONOS},
+            {ees::Lines::ZEUS, ::Lines::ZEUS},
+            // Pode adicionar mais mapeamentos conforme necessário
+        };
+        auto it = line_map.find(line);
+        if (it != line_map.end())
+        {
+            return it->second;
+        }
+        else
+        {
+            return ::Lines::UNKNOWN; // Retorna o valor padrão para casos não mapeados
+        }
+    }
 
     auto is_all_digits(const std::string &text) -> bool
     {
@@ -43,7 +79,7 @@ namespace ees
         while (true)
         {
             getline(std::cin, tip_text); // Ensuring the value is a string
-            if (tip_text.empty()) // Checking if the answer is empty.
+            if (tip_text.empty())        // Checking if the answer is empty.
             {
                 std::cout << "Entrada inválida. Por favor, digite um dígito de 1 a 9.\n";
                 continue;
@@ -62,4 +98,15 @@ namespace ees
         return option;
     }
 
-} // namespace ees
+    auto to_uppercase(std::string &text) -> std::string
+    {
+        for(char & c : text)
+        {
+            if(std::islower(c))
+            {
+                c = std::toupper(c);
+            }
+        }
+        return text;
+    }
+}

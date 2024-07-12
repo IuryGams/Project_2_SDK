@@ -5,10 +5,11 @@ service EnergyMeter
 {  
     rpc GetAllLines(Empty) returns (AllLinesRequest);
     rpc GetAllMeters(Empty) returns (MeterListRequest);
+    
+    rpc GetModelsByLine(MeterLine) returns (MeterListRequest);
 
     rpc CreateMeter(MeterInfor) returns (MeterCompleteInfor);
     rpc ReadMeter(MeterID) returns (MeterCompleteInfor);
-    rpc UpdateMeter(MeterInfor) returns (MeterInfor);
     rpc DeleteMeter(MeterID) returns (ResponseStatus);
 }
 
@@ -27,6 +28,11 @@ message MeterInfor
 {
     Lines line = 1;
     string model = 2;
+}
+
+message MeterLine
+{
+    string meter_line = 1;
 }
 
 message MeterCompleteInfor

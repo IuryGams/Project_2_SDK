@@ -24,6 +24,9 @@ namespace energy
 
         grpc::Status GetAllLines(
             grpc::ServerContext *context, const Empty *request, AllLinesRequest *reply ) override;
+
+        grpc::Status GetModelsByLine(
+            grpc::ServerContext *context, const MeterLine *Request, MeterListRequest *reply) override;
     };
 }
 
