@@ -1,9 +1,12 @@
+file(GLOB TEST_FILES)
+
 add_executable(
     ${PROJECT_NAME}Tests
     
     test_operations.cpp
     test_utils.cpp
     test_energy_meter.cpp
+    test_energy_meter_services.cpp
     main.cpp
 )
 

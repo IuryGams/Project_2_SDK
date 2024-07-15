@@ -54,7 +54,7 @@ namespace ees
 
         SECTION("Find existing meter by ID")
         {
-            int id = 2; // ID de um medidor que existe na lista
+            const int id = 5; // ID de um medidor que existe na lista
 
             REQUIRE_NOTHROW(operations.find_meter_by_id(id));
 
@@ -64,11 +64,10 @@ namespace ees
 
         SECTION("NOT find meter by ID ")
         {
-            int id = 999;  // ID de um medidor que NÃO existe na lista
+            const int id = 999; // ID de um medidor que NÃO existe na lista
 
             // Verifica se uma exceção é lançada quando o medidor não existe
             REQUIRE_THROWS_AS(operations.find_meter_by_id(id), std::runtime_error);
-
         }
     };
 
@@ -86,9 +85,9 @@ namespace ees
             int id_zeus = zeus.get_id();
 
             bool meter_found = false;
-            for(auto meter : operations.get_meter_list())
+            for (auto meter : operations.get_meter_list())
             {
-                if(zeus.get_id() == meter.get_id())
+                if (zeus.get_id() == meter.get_id())
                 {
                     meter_found = true;
                     break;
@@ -121,15 +120,15 @@ namespace ees
             REQUIRE(result); // Expected to be deleted
 
             bool meter_found = false;
-            for(auto &meter : operations.get_meter_list()) // Checking if the Energy Meter does not exist
+            for (auto &meter : operations.get_meter_list()) // Checking if the Energy Meter does not exist
             {
-                if(meter.get_id() == meter_id)
+                if (meter.get_id() == meter_id)
                 {
                     meter_found = true;
                     break;
                 }
             }
-            REQUIRE_FALSE(meter_found);  // Expected not find Energy Meter;                                
+            REQUIRE_FALSE(meter_found); // Expected not find Energy Meter;
         }
 
         SECTION("Try remove Energy Meter non-existent")
