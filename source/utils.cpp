@@ -100,6 +100,11 @@ namespace ees
 
     auto to_uppercase(std::string &text) -> std::string
     {
+        if(text.empty())
+        {
+            throw std::runtime_error("Valor inválido!"); 
+        }
+
         for(char & c : text)
         {
             if(std::islower(c))

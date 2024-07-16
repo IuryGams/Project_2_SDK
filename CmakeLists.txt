@@ -1,8 +1,13 @@
     cmake_minimum_required(VERSION 3.21)
 
     set(CMAKE_BUILD_TYPE "Release")
+
+    # Configurando o Cmake para utilizar as configurações do vcpkg
     set(CMAKE_TOOLCHAIN_FILE "C:/Dev/vcpkg/scripts/buildsystems/vcpkg.cmake")
+
+    # Setando o local das bibliotecas instaladas
     set(CMAKE_PREFIX_PATH "C:/Dev/vcpkg/installed/x64-windows")
+
     set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
     
     PROJECT(
@@ -10,6 +15,7 @@
         
         LANGUAGES CXX
     )
+    
     find_package(gRPC CONFIG REQUIRED)
 
     add_subdirectory(proto)
@@ -17,7 +23,7 @@
     # add_subdirectory(client)
     # add_subdirectory(server)
 
-    file(GLOB FILES_CPP ./source/*.cpp)
+    file(GLOB FILES_CPP source/*.cpp)
     file(GLOB SERVICES_FILES_CPP ./source/services/*.cpp)
     file(GLOB METER_FILES_CPP ./source/meters/*.cpp)
 
@@ -70,3 +76,28 @@
         PUBLIC
             ${PROJECT_NAME}_lib
     )
+
+
+    # --------------------------------------------------------------------------------------------------#
+    # LIST OF COMANDS  
+
+    # ----- COMAND FOR GENERATE COVERAGE -----
+
+    # Defina o caminho para os arquivos fonte e o executável de teste
+    set(SOURCES_DIR "C:\\Dev\\Projects C++\\PROJECT_INTEGRATION\\source\\utils.cpp")
+    set(TEST_EXECUTABLE_PATH "${CMAKE_BINARY_DIR}\\tests\\PROJECT_INTEGRATIONTests.exe")
+    set(COVERAGE_OUTPUT_DIR "${CMAKE_SOURCE_DIR}\\coverage")
+
+    file(MAKE_DIRECTORY ${COVERAGE_OUTPUT_DIR})
+
+    # Comando personalizado para executar OpenCppCoverage
+    add_custom_target(coverage
+    COMMAND OpenCppCoverage 
+            --sources "C:\\Dev\\Projects C++\\PROJECT_INTEGRATION\\source"
+            --export_type "html:${COVERAGE_OUTPUT_DIR}"
+            -- ${TEST_EXECUTABLE_PATH}
+        WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
+    )
+
+    # Adicione dependências, garantindo que o executável de teste seja construído antes de rodar a cobertura
+    add_dependencies(coverage ${PROJECT_NAME}Tests)

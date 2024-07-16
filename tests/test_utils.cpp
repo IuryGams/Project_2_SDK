@@ -36,13 +36,12 @@ namespace ees
         SECTION("Receiving a string value with integer numbers")
         {
             std::string numbers = "123";
-            
+
             REQUIRE(is_all_digits(numbers));
         };
     };
 
-    TEST_CASE("Testing function convert string to integer number.")
-    {
+    TEST_CASE("Testing function convert string to integer number."){
         // std::stringstream input_stream;
         // std::stringstream output_stream;
 
@@ -77,5 +76,42 @@ namespace ees
         // std::cin.rdbuf(old_cin);
         // std::cout.rdbuf(old_cout);
     };
+
+    TEST_CASE("Testing function to_uppercase", "[to_uppercase]")
+    {
+        SECTION("Convert lowercase to uppercase")
+        {
+            std::string input = "hello";
+            std::string expected = "HELLO";
+            REQUIRE(to_uppercase(input) == expected);
+        }
+
+        SECTION("String already in uppercase")
+        {
+            std::string input = "WORLD";
+            std::string expected = "WORLD";
+            REQUIRE(to_uppercase(input) == expected);
+        }
+
+        SECTION("Mixed case string")
+        {
+            std::string input = "HeLLo WoRLD";
+            std::string expected = "HELLO WORLD";
+            REQUIRE(to_uppercase(input) == expected);
+        }
+
+        SECTION("String with numbers and symbols")
+        {
+            std::string input = "Hello123!@#";
+            std::string expected = "HELLO123!@#";
+            REQUIRE(to_uppercase(input) == expected);
+        }
+
+        SECTION("Empty string throws exception")
+        {
+            std::string input = "";
+            REQUIRE_THROWS_AS(to_uppercase(input), std::runtime_error);
+        }
+    }
 
 } // namespace ees

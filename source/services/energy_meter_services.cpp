@@ -31,9 +31,6 @@ namespace energy
 
     grpc::Status EnergyMeterServiceImpl::ReadMeter(grpc::ServerContext *context, const MeterID *request, MeterCompleteInfor *reply)
     {
-        // Verifica se o ID do medidor foi fornecido corretamente
-        // Pro
-
         try
         {
             // Encontra o medidor pelo ID
@@ -64,9 +61,9 @@ namespace energy
 
             for (const auto &meter : list_meters)
             {
-                std::cout << "ID do medidor: " << meter.get_id() << std::endl;
-                std::cout << "Linha do medidor: " << ees::convert_enumline_to_string(meter.get_line()) << std::endl;
-                std::cout << "Modelo do medidor: " << meter.get_model() << std::endl;
+                // std::cout << "ID do medidor: " << meter.get_id() << std::endl;
+                // std::cout << "Linha do medidor: " << ees::convert_enumline_to_string(meter.get_line()) << std::endl;
+                // std::cout << "Modelo do medidor: " << meter.get_model() << std::endl;
 
                 MeterCompleteInfor *meter_info = reply->add_meters();
                 meter_info->set_id(meter.get_id());
@@ -134,3 +131,4 @@ namespace energy
     }
 
 }
+

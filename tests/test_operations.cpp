@@ -14,64 +14,30 @@
 namespace ees
 {
 
-    // TEST_CASE("Testing function read meter list", "[find_model_by_id]") // OK
+    // TEST_CASE("Testing function find model by id", "[find_meter_by_id]") // OK
     // {
     //     Operations operations;
-    //     std::stringstream output;
 
-    //     // Redirect cout
-    //     std::streambuf *old_cout = std::cout.rdbuf(output.rdbuf());
+    //     SECTION("Find existing meter by ID")
+    //     {
+    //         const int id = 5; // ID de um medidor que existe na lista
 
-    //     operations.read_meter_list();
+    //         REQUIRE_NOTHROW(operations.find_meter_by_id(id));
 
-    //     std::cout.rdbuf(old_cout);
+    //         // Verifica se o medidor retornado tem o ID correto
+    //         REQUIRE(operations.find_meter_by_id(id).get_id() == id);
+    //     }
 
-    //     std::string expected_output =
-    //         "1 | ARES | 7021\n"
-    //         "2 | ARES | 7023\n"
-    //         "3 | ARES | 7031\n"
-    //         "4 | ARES | 8023\n"
-    //         "5 | ARES | 8023 15\n"
-    //         "6 | ARES | 8023 200\n"
-    //         "7 | CRONOS | 6001-A\n"
-    //         "8 | CRONOS | 6021-A\n"
-    //         "9 | CRONOS | 6021L\n"
-    //         "10 | CRONOS | 6003\n"
-    //         "11 | CRONOS | 7023\n"
-    //         "12 | CRONOS | 7023L\n"
-    //         "13 | CRONOS | 7023 2,5\n"
-    //         "14 | APOLO | 6031\n"
-    //         "15 | ZEUS | 8021\n"
-    //         "16 | ZEUS | 8023\n"
-    //         "17 | ZEUS | 8031\n";
+    //     SECTION("NOT find meter by ID ")
+    //     {
+    //         const int id = 999; // ID de um medidor que NÃO existe na lista
 
-    //     REQUIRE(output.str() == expected_output);
-    // }
+    //         // Verifica se uma exceção é lançada quando o medidor não existe
+    //         REQUIRE_THROWS_AS(operations.find_meter_by_id(id), std::runtime_error);
+    //     }
+    // };
 
-    TEST_CASE("Testing function find model by id", "[find_model_by_id]") // OK
-    {
-        Operations operations;
-
-        SECTION("Find existing meter by ID")
-        {
-            const int id = 5; // ID de um medidor que existe na lista
-
-            REQUIRE_NOTHROW(operations.find_meter_by_id(id));
-
-            // Verifica se o medidor retornado tem o ID correto
-            REQUIRE(operations.find_meter_by_id(id).get_id() == id);
-        }
-
-        SECTION("NOT find meter by ID ")
-        {
-            const int id = 999; // ID de um medidor que NÃO existe na lista
-
-            // Verifica se uma exceção é lançada quando o medidor não existe
-            REQUIRE_THROWS_AS(operations.find_meter_by_id(id), std::runtime_error);
-        }
-    };
-
-    TEST_CASE("Testing add new model to meter list", "[find_model_by_id]")
+    TEST_CASE("Testing add new model to meter list", "[add_new_model]")
     {
         Operations operations;
 
@@ -146,7 +112,7 @@ namespace ees
         REQUIRE(operations.get_meter_list().size() == 17);
     }
 
-    TEST_CASE("Testing the filter for a selected line", "[find_model_by_id]")
+    TEST_CASE("Testing the filter for a selected line", "[filter_by_line]")
     {
         std::vector<EnergyMeter> test_line;
         Operations operations;

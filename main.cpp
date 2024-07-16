@@ -13,7 +13,6 @@ int main ()
     std::thread server_thread(energy::RunServer);
     // std::thread client_thread(energy::RunClient);
 
-    // Aguardar até que ambas as threads terminem
     // client_thread.join();
     server_thread.join();
 
