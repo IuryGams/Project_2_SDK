@@ -11,22 +11,22 @@ namespace energy
     public:
         // Okay
         grpc::Status CreateMeter(
-            grpc::ServerContext *context, const MeterInfor *request, MeterCompleteInfor *reply) override;
+            grpc::ServerContext *context, const MeterCompleteInfor *request, MeterCompleteInfor *reply) override;
         // Okay
         grpc::Status GetAllMeters(
-            grpc::ServerContext *context, const Empty *request, MeterListRequest *reply) override;
+            grpc::ServerContext *context, const Empty *request, MeterListReply *reply) override;
         // Okay
         grpc::Status ReadMeter(
-            grpc::ServerContext *context, const MeterID *request, MeterCompleteInfor *reply) override; 
+            grpc::ServerContext *context, const MeterID *request, ReadMeterReply *reply) override; 
         // Okay
         grpc::Status DeleteMeter(
             grpc::ServerContext *context, const MeterID *request, ResponseStatus *reply) override;
 
         grpc::Status GetAllLines(
-            grpc::ServerContext *context, const Empty *request, AllLinesRequest *reply ) override;
+            grpc::ServerContext *context, const Empty *request, AllLinesReply *reply ) override;
 
         grpc::Status GetModelsByLine(
-            grpc::ServerContext *context, const MeterLine *Request, MeterListRequest *reply) override;
+            grpc::ServerContext *context, const RequestMeterLine *Request, MeterListReply *reply) override;
     };
 }
 

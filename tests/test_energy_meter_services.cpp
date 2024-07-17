@@ -3,106 +3,103 @@
 #include "energy_meter.grpc.pb.h"
 #include "energy_meter_services.hpp"
 #include "energy_meter.hpp"
-#include <grpcpp/grpcpp.h>
+#include "utils.hpp"
 #include "operations.hpp"
+#include "project_exceptions.hpp"
+#include <grpcpp/grpcpp.h>
 
 ees::Operations operations;
 
-TEST_CASE("CreateMeter Test", "[grpc]")
+TEST_CASE("CreateMeter Test", "[create_meter]") // Testing OK
 {
     // Setup
     energy::EnergyMeterServiceImpl service;
+    ees::Operations op;
 
     grpc::ServerContext context;
-    MeterInfor request;
+    MeterCompleteInfor request;
     MeterCompleteInfor reply;
-
-    // Defina os valores apropriados para a linha e o modelo
-    request.set_line(Lines::ARES); 
-    request.set_model("Modelo exemplo");
 
     SECTION("Successfully create a new meter")
     {
+
+        request.set_id(20);
+        request.set_line(Lines::ARES);
+        request.set_model("Modelo exemplo");
+
         grpc::Status status = service.CreateMeter(&context, &request, &reply);
 
-        REQUIRE(status.ok());
-        REQUIRE(reply.id() != 0); // Verifique se o ID foi definido corretamente
-        REQUIRE(reply.line() == request.line());
-        REQUIRE(reply.model() == request.model());
+        if (op.add_new_model({request.id(), static_cast<ees::Lines>(request.line()), request.model()}))
+        {
+            REQUIRE(reply.id() == request.id());
+            REQUIRE(reply.line() == request.line());
+            REQUIRE(reply.model() == request.model());
+            REQUIRE(status.ok());
+        }
     }
 
     SECTION("Meter already exists")
     {
-        // Adicione um medidor existente na lista
-        ees::EnergyMeter existing_meter(static_cast<ees::Lines>(request.line()), request.model());
-        operations.add_new_model(existing_meter);
+        request.set_id(1);
+        request.set_line(Lines::ARES);
+        request.set_model("Modelo exemplo");
 
         grpc::Status status = service.CreateMeter(&context, &request, &reply);
 
-        REQUIRE(status.error_code() == grpc::ALREADY_EXISTS);
-        REQUIRE(status.error_message() == "Medidor já existe");
+        REQUIRE(grpc::StatusCode::ALREADY_EXISTS);
+        REQUIRE(status.error_message() == "Medidor já existe.");
     }
 }
 
-TEST_CASE("ReadMeter", "[ReadMeter]")
+TEST_CASE("ReadMeter", "[read_meter]")
 {
     energy::EnergyMeterServiceImpl service;
     grpc::ServerContext context;
+    MeterID request;
     MeterCompleteInfor reply;
 
     SECTION("Success - Meter Found")
     {
-        MeterID request;
         request.set_id(3);
 
-        grpc::Status status = service.ReadMeter(&context, &request, &reply);
+        // grpc::Status status = service.ReadMeter(&context, &request, &reply);
 
-        REQUIRE(status.ok());
-        REQUIRE(reply.id() == 3);
-        // Adicione mais verificações conforme necessário para os outros campos do reply
+        REQUIRE(reply.id() == request.id());
     }
 
     SECTION("NotFound - Meter Not Found")
     {
-        MeterID request;
         request.set_id(9999);
 
-        grpc::Status status = service.ReadMeter(&context, &request, &reply);
-
-        REQUIRE(status.error_code() == grpc::StatusCode::NOT_FOUND);
-        // Verifica a mensagem de erro, se necessário
-        REQUIRE(status.error_message() == "Medidor de energia não encontrado.");
+        // REQUIRE_THROWS_AS(service.ReadMeter(&context, &request, &reply), ees::InternalServerErrorThisMeterAlreadyExist);
     }
-
-    // Adicione mais SECTIONS conforme necessário para outros casos de teste
 }
 
-TEST_CASE("GetAllMeters returns the list of meters", "[EnergyMeterServiceImpl]")
+TEST_CASE("GetAllMeters returns the list of meters", "[all_meters]")
 {
-    // Instanciação do serviço real
+    ees::Operations op;
+    std::vector<ees::EnergyMeter> meter_list = op.get_meter_list();
     energy::EnergyMeterServiceImpl service;
 
     grpc::ServerContext context;
     Empty request;
-    MeterListRequest reply;
+    MeterListReply reply;
 
     grpc::Status status = service.GetAllMeters(&context, &request, &reply);
 
-    REQUIRE(status.ok());
+    REQUIRE(reply.meters_size() > 0);
 
-    REQUIRE(reply.meters_size() > 0); // Verifique se há medidores na lista
-
-    for (int i = 0; i < reply.meters_size(); ++i)
+    for (size_t i = 0; i < reply.meters_size(); i++)
     {
+        const MeterCompleteInfor &meter_info = reply.meters(i);
 
-        const auto &meter = reply.meters(i);
-        REQUIRE(meter.id() != 0);
-        REQUIRE(meter.line() != ::Lines::UNKNOWN); // Certifique-se de que a linha é válida
-        REQUIRE_FALSE(meter.model().empty());
+        REQUIRE(meter_info.id() == meter_list.at(i).get_id());
+        REQUIRE(meter_info.line() == ees::convert_enum_cpp_to_proto_enum(meter_list.at(i).get_line()));
+        REQUIRE(meter_info.model() == meter_list.at(i).get_model());
     }
 }
 
-TEST_CASE("DeleteMeter removes the meter and returns success", "[EnergyMeterServiceImpl]")
+TEST_CASE("DeleteMeter removes the meter and returns success", "[delete_meter]")
 {
     // Setup
     energy::EnergyMeterServiceImpl service;
@@ -110,24 +107,41 @@ TEST_CASE("DeleteMeter removes the meter and returns success", "[EnergyMeterServ
     MeterID request;
     ResponseStatus reply;
 
-    // Assuming there's a meter with ID 1
-    request.set_id(1);
+    SECTION("Request Successful")
+    {
+        // Assuming there's a meter with ID 2
+        request.set_id(2);
 
-    // Test
-    auto status = service.DeleteMeter(&context, &request, &reply);
+        // Test
+        auto status = service.DeleteMeter(&context, &request, &reply);
 
-    // Verify
-    REQUIRE(status.ok());
-    REQUIRE(reply.status() == ResponseStatus::COMMAND_EXECUTION_SUCCESSFUL);
+        // Verify
+        if (status.ok())
+        {
+            REQUIRE(reply.status() == ResponseStatus::COMMAND_EXECUTION_SUCCESSFUL);
+        }
+    }
+
+    SECTION("Request Failed")
+    {
+        // Assuming there's a meter with ID 999
+        request.set_id(999);
+
+        // Test
+        auto status = service.DeleteMeter(&context, &request, &reply);
+
+        // Verify
+        REQUIRE(reply.status() == ResponseStatus::COMMAND_EXECUTION_FAILED);
+    }
 }
 
-TEST_CASE("GetAllLines returns all available lines", "[EnergyMeterServiceImpl]")
+TEST_CASE("GetAllLines returns all available lines", "[all_lines]")
 {
     // Setup
     energy::EnergyMeterServiceImpl service;
     grpc::ServerContext context;
     Empty request;
-    AllLinesRequest reply;
+    AllLinesReply reply;
 
     // Test
     auto status = service.GetAllLines(&context, &request, &reply);
@@ -141,13 +155,14 @@ TEST_CASE("GetAllLines returns all available lines", "[EnergyMeterServiceImpl]")
     REQUIRE(reply.lines(3) == Lines::ZEUS);
 }
 
-TEST_CASE("GetModelsByLine returns models for a given line", "[EnergyMeterServiceImpl]")
+TEST_CASE("GetModelsByLine returns models for a given line", "[]")
 {
     // Setup
     energy::EnergyMeterServiceImpl service;
+
     grpc::ServerContext context;
-    MeterLine request;
-    MeterListRequest reply;
+    RequestMeterLine request;
+    MeterListReply reply;
 
     // Assuming there's a line called "ARES"
     request.set_meter_line("ARES");

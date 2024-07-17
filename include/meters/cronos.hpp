@@ -7,6 +7,6 @@ namespace ees
     class Cronos : public EnergyMeter
     {
     public:
-        Cronos(const std::string &model);
+        Cronos(const int &id, const std::string &model);
     };
 } // namespace ees

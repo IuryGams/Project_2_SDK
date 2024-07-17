@@ -7,6 +7,6 @@ namespace ees
     class Apolo : public EnergyMeter
     {
     public:
-        Apolo(const std::string &model);
+        Apolo(const int &id,const std::string &model);
     };
 } // namespace ees

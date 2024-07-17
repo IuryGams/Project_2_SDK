@@ -2,7 +2,6 @@
 #include <iostream>
 #include <thread>
 
-#include "menu.hpp"
 #include "server.hpp"
 #include "client.hpp"
 

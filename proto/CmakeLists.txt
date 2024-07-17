@@ -7,7 +7,7 @@ add_library(
     protolib
 
     STATIC
-    energy_meter.proto
+    ${PROTO_FILES}
 )
 
 target_link_libraries(

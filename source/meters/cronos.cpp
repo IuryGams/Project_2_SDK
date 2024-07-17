@@ -2,8 +2,8 @@
 
 namespace ees
 {
-    Cronos::Cronos(const std::string &model)
-        :EnergyMeter(Lines::CRONOS, model)
+    Cronos::Cronos(const int &id, const std::string &model)
+        :EnergyMeter(id, Lines::CRONOS, model)
     {
         
     }

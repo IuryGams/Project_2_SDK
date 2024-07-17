@@ -14,5 +14,17 @@
             "cwd": "${workspaceFolder}/build/",
             "environment": [],
             "console": "integratedTerminal"
-        }]
+        },
+        {
+            "name": "debug-tests",
+            "type": "cppvsdbg",
+            "request": "launch",
+            "program": "${workspaceFolder}/build/tests/PROJECT_INTEGRATIONTests.exe",
+            "args": [],
+            "stopAtEntry": false,
+            "cwd": "${workspaceFolder}/build/",
+            "environment": [],
+            "console": "integratedTerminal"
+        }
+    ]
     }

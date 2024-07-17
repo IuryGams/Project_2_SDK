@@ -1,7 +1,5 @@
     cmake_minimum_required(VERSION 3.21)
 
-    set(CMAKE_BUILD_TYPE "Release")
-
     # Configurando o Cmake para utilizar as configurações do vcpkg
     set(CMAKE_TOOLCHAIN_FILE "C:/Dev/vcpkg/scripts/buildsystems/vcpkg.cmake")
 
@@ -9,14 +7,13 @@
     set(CMAKE_PREFIX_PATH "C:/Dev/vcpkg/installed/x64-windows")
 
     set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+    set(CMAKE_CXX_STANDARD 17)
     
     PROJECT(
         PROJECT_INTEGRATION
         
         LANGUAGES CXX
     )
-    
-    find_package(gRPC CONFIG REQUIRED)
 
     add_subdirectory(proto)
     add_subdirectory(tests)
@@ -84,17 +81,20 @@
     # ----- COMAND FOR GENERATE COVERAGE -----
 
     # Defina o caminho para os arquivos fonte e o executável de teste
-    set(SOURCES_DIR "C:\\Dev\\Projects C++\\PROJECT_INTEGRATION\\source\\utils.cpp")
-    set(TEST_EXECUTABLE_PATH "${CMAKE_BINARY_DIR}\\tests\\PROJECT_INTEGRATIONTests.exe")
-    set(COVERAGE_OUTPUT_DIR "${CMAKE_SOURCE_DIR}\\coverage")
+    set(OpenCppCoverage "C:\\Program Files\\OpenCppCoverage\\OpenCppCoverage.exe")
+    set(SOURCES_DIR C:\\Dev\\Iury\\PROJECT_INTEGRATION\\source) # Arquivos .cpp dentro de source
+    set(COVERAGE_OUTPUT_DIR ${CMAKE_SOURCE_DIR}\\coverage) # Caminho para a pasta do Coverage
+    set(TEST_EXECUTABLE_PATH C:\\Dev\\Iury\\PROJECT_INTEGRATION\\build\\tests\\PROJECT_INTEGRATIONTests.exe) # Caminho para o executavel de testes
 
-    file(MAKE_DIRECTORY ${COVERAGE_OUTPUT_DIR})
+    file(MAKE_DIRECTORY ${COVERAGE_OUTPUT_DIR}) # Criando a pasta coverage se não existir
+    
 
     # Comando personalizado para executar OpenCppCoverage
     add_custom_target(coverage
-    COMMAND OpenCppCoverage 
-            --sources "C:\\Dev\\Projects C++\\PROJECT_INTEGRATION\\source"
-            --export_type "html:${COVERAGE_OUTPUT_DIR}"
+        COMMAND rmdir /S /Q "C:\\Dev\\Iury\\PROJECT_INTEGRATION\\coverage"
+        COMMAND ${OpenCppCoverage} 
+            --sources=${SOURCES_DIR}
+            --export_type=html:${COVERAGE_OUTPUT_DIR}
             -- ${TEST_EXECUTABLE_PATH}
         WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
     )

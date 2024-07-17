@@ -2,8 +2,8 @@
 
 namespace ees
 {
-    Zeus::Zeus(const std::string &model)
-        :EnergyMeter(Lines::ZEUS, model)
+    Zeus::Zeus(const int &id, const std::string &model)
+        :EnergyMeter(id, Lines::ZEUS, model)
     {
         
     }

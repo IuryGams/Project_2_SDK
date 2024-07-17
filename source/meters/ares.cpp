@@ -2,8 +2,8 @@
 
 namespace ees
 {
-    Ares::Ares(const std::string &model)
-        :EnergyMeter(Lines::ARES, model)
+    Ares::Ares(const int &id, const std::string &model)
+        :EnergyMeter(id,Lines::ARES, model)
     {
         
     }

@@ -3,17 +3,27 @@ syntax = "proto3";
 
 service EnergyMeter
 {  
-    rpc GetAllLines(Empty) returns (AllLinesRequest);
-    rpc GetAllMeters(Empty) returns (MeterListRequest);
+    rpc GetAllLines(Empty) returns (AllLinesReply);
+    rpc GetAllMeters(Empty) returns (MeterListReply);
     
-    rpc GetModelsByLine(MeterLine) returns (MeterListRequest);
+    rpc GetModelsByLine(RequestMeterLine) returns (MeterListReply);
 
-    rpc CreateMeter(MeterInfor) returns (MeterCompleteInfor);
-    rpc ReadMeter(MeterID) returns (MeterCompleteInfor);
+    rpc CreateMeter(MeterCompleteInfor) returns (MeterCompleteInfor);
+    rpc ReadMeter(MeterID) returns (ReadMeterReply);
     rpc DeleteMeter(MeterID) returns (ResponseStatus);
 }
 
 message Empty {}
+
+// ##### START ENUM #####
+
+enum ReplyStatusException
+{
+    UNKNOWN_ERROR = 0;
+    THIS_METER_ALREADY_EXIST = 1;
+    NOT_FOUND = 2;
+    NOT_POSSIBLE_CREATE_METER = 3;
+}
 
 enum Lines
 {
@@ -24,15 +34,24 @@ enum Lines
     ZEUS = 4;
 }
 
-message MeterInfor
-{
-    Lines line = 1;
-    string model = 2;
-}
+// ##### START LINES #####
 
-message MeterLine
+message RequestMeterLine
 {
     string meter_line = 1;
+}
+
+message AllLinesReply
+{
+    repeated Lines lines = 1;
+    optional ReplyStatusException resp = 2;
+}
+
+// ##### START METER #####
+
+message MeterID
+{
+    int32 id = 1;
 }
 
 message MeterCompleteInfor
@@ -42,15 +61,12 @@ message MeterCompleteInfor
     string model = 3;
 }
 
-message MeterListRequest
+message MeterListReply
 {
     repeated MeterCompleteInfor meters = 1;
 }
 
-message MeterID
-{
-    int32 id = 1;
-}
+// ##### START RESPONSE #####
 
 message ResponseStatus
 {
@@ -63,7 +79,11 @@ message ResponseStatus
     ReplyStatus status = 1;
 }
 
-message AllLinesRequest
+message ReadMeterReply
 {
-    repeated Lines lines = 1;
+    oneof resp 
+    {
+        MeterCompleteInfor meter = 1;
+        ReplyStatusException response = 2;
+    }
 }

@@ -2,8 +2,8 @@
 
 namespace ees
 {
-    Apolo::Apolo(const std::string &model)
-        :EnergyMeter(Lines::APOLO, model)
+    Apolo::Apolo(const int &id, const std::string &model)
+        :EnergyMeter(id,Lines::APOLO, model)
     {
         
     }

@@ -13,7 +13,7 @@ namespace energy
     {
         public:
         EnergyMeterClient(std::shared_ptr<grpc::Channel> channel);
-        MeterCompleteInfor CreateMeter(const MeterInfor &meter);
+        MeterCompleteInfor CreateMeter(const MeterCompleteInfor &meter);
         MeterCompleteInfor ReadMeter(const MeterID &meter_id);
         void DeleteMeter(const MeterID &meter_id);
 

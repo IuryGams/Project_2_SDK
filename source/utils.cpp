@@ -1,6 +1,5 @@
 #include "utils.hpp"
 #include "operations.hpp"
-#include "menu.hpp"
 #include "energy_meter.pb.h"
 
 #include <cstring>
@@ -10,7 +9,7 @@
 namespace ees
 {
 
-    auto convert_enumline_to_string(const ees::Lines &line) -> std::string
+    auto convert_enumline_to_string(const ees::Lines &line) -> std::string // Testing OK
     {
         std::map<ees::Lines, std::string> lines_to_string = {
             {ees::Lines::ARES, "ARES"},
@@ -21,9 +20,9 @@ namespace ees
         };
 
         return lines_to_string.at(line);
-    }
+    } // Testing OK
 
-    auto convert_proto_enum_to_cpp_enum(int proto_enum_value) -> ees::Lines
+    auto convert_proto_enum_to_cpp_enum(int proto_enum_value) -> ees::Lines // Testing OK
     {
         switch (proto_enum_value)
         {
@@ -38,29 +37,30 @@ namespace ees
         default:
             return ees::Lines::UNKNOWN;
         }
-    }
+    } // Testing OK
 
-    auto convert_to_proto_enum(ees::Lines line) -> int
+    auto convert_enum_cpp_to_proto_enum(ees::Lines specific_line) -> int
     {
         static std::map<ees::Lines, ::Lines> line_map = {
             {ees::Lines::ARES, ::Lines::ARES},
             {ees::Lines::APOLO, ::Lines::APOLO},
             {ees::Lines::CRONOS, ::Lines::CRONOS},
             {ees::Lines::ZEUS, ::Lines::ZEUS},
-            // Pode adicionar mais mapeamentos conforme necessário
         };
-        auto it = line_map.find(line);
+        
+        auto it = line_map.find(specific_line);
+
         if (it != line_map.end())
         {
             return it->second;
         }
         else
         {
-            return ::Lines::UNKNOWN; // Retorna o valor padrão para casos não mapeados
+            return ::Lines::UNKNOWN;
         }
     }
 
-    auto is_all_digits(const std::string &text) -> bool
+    auto is_all_digits(const std::string &text) -> bool // Testing OK
     {
         for (char c : text)
         {
@@ -72,46 +72,22 @@ namespace ees
         return true;
     }
 
-    auto convert_string_to_int() -> int
+    auto to_uppercase(const std::string &text) -> std::string // Testing OK
     {
-        std::string tip_text;
-        int option;
-        while (true)
-        {
-            getline(std::cin, tip_text); // Ensuring the value is a string
-            if (tip_text.empty())        // Checking if the answer is empty.
-            {
-                std::cout << "Entrada inválida. Por favor, digite um dígito de 1 a 9.\n";
-                continue;
-            }
+        std::string result = text;
 
-            if (is_all_digits(tip_text)) // Checking if the answer is a integer number.
-            {
-                option = stoi(tip_text);
-                break;
-            }
-            else
-            {
-                std::cout << "Entrada inválida. Por favor, insira um número.\n";
-            }
-        }
-        return option;
-    }
-
-    auto to_uppercase(std::string &text) -> std::string
-    {
         if(text.empty())
         {
             throw std::runtime_error("Valor inválido!"); 
         }
 
-        for(char & c : text)
+        for(char & c : result)
         {
             if(std::islower(c))
             {
                 c = std::toupper(c);
             }
         }
-        return text;
+        return result;
     }
 }

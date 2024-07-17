@@ -9,7 +9,7 @@ namespace energy
     {
         EnergyMeterClient client(grpc::CreateChannel("localhost:50051", grpc::InsecureChannelCredentials()));
 
-        MeterInfor meter;
+        MeterCompleteInfor meter;
         meter.set_line(Lines::ARES);
         meter.set_model("Model X");
 

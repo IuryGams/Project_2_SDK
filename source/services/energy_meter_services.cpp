@@ -3,6 +3,7 @@
 #include "energy_meter.hpp"
 #include "enums.hpp"
 #include "utils.hpp"
+#include "project_exceptions.hpp"
 
 #include <vector>
 #include <string>
@@ -11,73 +12,56 @@ namespace energy
 {
     ees::Operations operations;
 
-    grpc::Status EnergyMeterServiceImpl::CreateMeter(grpc::ServerContext *context, const MeterInfor *request, MeterCompleteInfor *reply)
-    {
-        ees::EnergyMeter new_meter(static_cast<ees::Lines>(request->line()), request->model());
-
-        if (operations.add_new_model(new_meter))
-        {
-            reply->set_id(new_meter.get_id());
-            reply->set_line(static_cast<Lines>(new_meter.get_line()));
-            reply->set_model(new_meter.get_model());
-            return grpc::Status::OK;
-        }
-        else
-        {
-            std::cout << "O medidor já existe e não foi adicionado." << std::endl;
-            return grpc::Status(grpc::ALREADY_EXISTS, "Medidor já existe");
-        }
-    }
-
-    grpc::Status EnergyMeterServiceImpl::ReadMeter(grpc::ServerContext *context, const MeterID *request, MeterCompleteInfor *reply)
+    grpc::Status EnergyMeterServiceImpl::CreateMeter(grpc::ServerContext *context, const MeterCompleteInfor *request, MeterCompleteInfor *reply)
     {
         try
         {
-            // Encontra o medidor pelo ID
-            ees::EnergyMeter found_meter = operations.find_meter_by_id(request->id());
+            ees::EnergyMeter new_meter(request->id(), static_cast<ees::Lines>(request->line()), request->model());
 
-            // Preenche os dados do medidor no reply
-            reply->set_id(found_meter.get_id());
-            reply->set_line(static_cast<Lines>(found_meter.get_line()));
-            reply->set_model(found_meter.get_model());
-
-            return grpc::Status::OK;
-        }
-        catch (const std::runtime_error &e)
-        {
-            // Caso o medidor não seja encontrado, retorna um status NOT_FOUND com mensagem apropriada
-            return grpc::Status(grpc::StatusCode::NOT_FOUND, e.what());
-        }
-    }
-
-    grpc::Status EnergyMeterServiceImpl::GetAllMeters(grpc::ServerContext *context, const Empty *request, MeterListRequest *reply)
-    {
-        try
-        {
-            std::cout << "Solicitado a lista de medidores" << std::endl;
-
-            std::vector<ees::EnergyMeter> list_meters = operations.get_meter_list();
-            std::cout << "Número de medidores recebidos: " << list_meters.size() << std::endl;
-
-            for (const auto &meter : list_meters)
+            if (operations.add_new_model(new_meter))
             {
-                // std::cout << "ID do medidor: " << meter.get_id() << std::endl;
-                // std::cout << "Linha do medidor: " << ees::convert_enumline_to_string(meter.get_line()) << std::endl;
-                // std::cout << "Modelo do medidor: " << meter.get_model() << std::endl;
-
-                MeterCompleteInfor *meter_info = reply->add_meters();
-                meter_info->set_id(meter.get_id());
-                meter_info->set_line(static_cast<::Lines>(convert_to_proto_enum(meter.get_line())));
-                meter_info->set_model(meter.get_model());
+                reply->set_id(new_meter.get_id());
+                reply->set_line(static_cast<Lines>(new_meter.get_line()));
+                reply->set_model(new_meter.get_model());
             }
-
             return grpc::Status::OK;
         }
-        catch (const std::exception &e)
+        catch (const ees::NotFound)
         {
-            std::cerr << "Erro ao obter a lista de medidores: " << e.what() << std::endl;
-            return grpc::Status(grpc::StatusCode::INTERNAL, "Erro interno ao obter a lista de medidores");
+            return grpc::Status(grpc::ALREADY_EXISTS, "Medidor já existe.");
         }
+    }
+
+    grpc::Status EnergyMeterServiceImpl::ReadMeter(grpc::ServerContext *context, const MeterID *request, ReadMeterReply *reply)
+    {
+        try
+        {
+            ees::EnergyMeter found_meter = operations.find_meter_by_id(static_cast<int>(request->id()));
+
+            reply->mutable_meter()->set_id(found_meter.get_id());
+            reply->mutable_meter()->set_line(static_cast<Lines>(found_meter.get_line()));
+            reply->mutable_meter()->set_model(found_meter.get_model());
+            return grpc::Status::OK;
+        }
+        catch (const ees::NotFound)
+        {
+            reply->set_response(ReplyStatusException::NOT_FOUND);
+            return grpc::Status::OK;
+        }
+    }
+
+    grpc::Status EnergyMeterServiceImpl::GetAllMeters(grpc::ServerContext *context, const Empty *request, MeterListReply *reply)
+    {
+        std::vector<ees::EnergyMeter> list_meters = operations.get_meter_list();
+
+        for (const auto &meter : list_meters)
+        {
+            MeterCompleteInfor *meter_info = reply->add_meters();
+            meter_info->set_id(meter.get_id());
+            meter_info->set_line(static_cast<::Lines>(convert_enum_cpp_to_proto_enum(meter.get_line())));
+            meter_info->set_model(meter.get_model());
+        }
+        return grpc::Status::OK;
     }
 
     grpc::Status EnergyMeterServiceImpl::DeleteMeter(grpc::ServerContext *context, const MeterID *request, ResponseStatus *reply)
@@ -92,7 +76,7 @@ namespace energy
         return grpc::Status::OK;
     }
 
-    grpc::Status EnergyMeterServiceImpl::GetAllLines(grpc::ServerContext *context, const Empty *request, AllLinesRequest *reply)
+    grpc::Status EnergyMeterServiceImpl::GetAllLines(grpc::ServerContext *context, const Empty *request, AllLinesReply *reply)
     {
 
         // Limpa qualquer dado pré-existente em reply
@@ -108,19 +92,12 @@ namespace energy
         return grpc::Status::OK;
     }
 
-    grpc::Status EnergyMeterServiceImpl::GetModelsByLine(grpc::ServerContext *context, const MeterLine *request, MeterListRequest *reply)
+    grpc::Status EnergyMeterServiceImpl::GetModelsByLine(grpc::ServerContext *context, const RequestMeterLine *request, MeterListReply *reply)
     {
-        std::string line = request->meter_line();
-
-        auto models = operations.filter_by_line(ees::to_uppercase(line));
+        auto models = operations.filter_by_line(ees::to_uppercase(request->meter_line()));
 
         for (const auto &model : models)
         {
-            std::cout << "ID do medidor: " << model.get_id() << std::endl;
-            std::cout << "Linha do medidor: " << ees::convert_enumline_to_string(model.get_line()) << std::endl;
-            std::cout << "Modelo do medidor: " << model.get_model() << std::endl;
-
-
             auto *meter_infor = reply->add_meters();
             meter_infor->set_id(model.get_id());
             meter_infor->set_line(static_cast<Lines>(model.get_line()));
@@ -131,4 +108,3 @@ namespace energy
     }
 
 }
-
