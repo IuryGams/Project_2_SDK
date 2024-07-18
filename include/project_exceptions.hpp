@@ -1,6 +1,6 @@
 #include <exception>
 
-namespace ees
+namespace expections
 {
     struct ThisMeterAlreadyExist : public std::exception
     {
@@ -17,5 +17,28 @@ namespace ees
             return "NotFound";
         }
     };
-    
-} // namespace ees
+
+    struct AlreadyExists : public std::exception
+    {
+        const char *what() const noexcept override
+        {
+            return "AlreadyExists";
+        }
+    };
+
+    struct NotExists : public std::exception
+    {
+        const char *what() const noexcept override
+        {
+            return "NotExists";
+        }
+    };
+
+    struct UnknownError : public std::exception
+    {
+        const char *what() const noexcept override
+        {
+            return "UnknownError";
+        }
+    };
+} // namespace expections
