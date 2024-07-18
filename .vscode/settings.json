@@ -84,7 +84,10 @@
         "span": "cpp",
         "unordered_set": "cpp",
         "*.inc": "cpp",
-        "cinttypes": "cpp"
+        "cinttypes": "cpp",
+        "any": "cpp",
+        "bitset": "cpp",
+        "filesystem": "cpp"
     },
     "C_Cpp.errorSquiggles": "enabled"
 }

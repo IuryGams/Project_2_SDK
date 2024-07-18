@@ -1,6 +1,6 @@
 syntax = "proto3";
 
-
+// Serviço EnergyMeter
 service EnergyMeter
 {  
     rpc GetAllLines(Empty) returns (AllLinesReply);
@@ -8,23 +8,28 @@ service EnergyMeter
     
     rpc GetModelsByLine(RequestMeterLine) returns (MeterListReply);
 
-    rpc CreateMeter(MeterCompleteInfor) returns (MeterCompleteInfor);
+    rpc CreateMeter(MeterCompleteInfor) returns (CreateMeterReply);
     rpc ReadMeter(MeterID) returns (ReadMeterReply);
     rpc DeleteMeter(MeterID) returns (ResponseStatus);
 }
 
+// Mensagem vazia para requisições que não necessitam de parâmetros
 message Empty {}
 
-// ##### START ENUM #####
+// ##### ENUMERAÇÕES #####
 
+// Status de resposta para exceções
 enum ReplyStatusException
 {
     UNKNOWN_ERROR = 0;
     THIS_METER_ALREADY_EXIST = 1;
     NOT_FOUND = 2;
     NOT_POSSIBLE_CREATE_METER = 3;
+    ALREADY_EXISTS_METER = 4;
+    NOT_EXISTS_LINE = 5;
 }
 
+// Linhas possíveis para os medidores
 enum Lines
 {
     UNKNOWN = 0;
@@ -34,26 +39,21 @@ enum Lines
     ZEUS = 4;
 }
 
-// ##### START LINES #####
+// ##### MENSAGENS #####
 
+// Requisição para obter modelos por linha
 message RequestMeterLine
 {
     string meter_line = 1;
 }
 
-message AllLinesReply
-{
-    repeated Lines lines = 1;
-    optional ReplyStatusException resp = 2;
-}
-
-// ##### START METER #####
-
+// Identificação de um medidor
 message MeterID
 {
     int32 id = 1;
 }
 
+// Informação completa de um medidor
 message MeterCompleteInfor
 {
     int32 id = 1;
@@ -61,13 +61,7 @@ message MeterCompleteInfor
     string model = 3;
 }
 
-message MeterListReply
-{
-    repeated MeterCompleteInfor meters = 1;
-}
-
-// ##### START RESPONSE #####
-
+// Resposta contendo o status da operação
 message ResponseStatus
 {
     enum ReplyStatus
@@ -79,11 +73,37 @@ message ResponseStatus
     ReplyStatus status = 1;
 }
 
+// Resposta para a leitura de um medidor
 message ReadMeterReply
 {
     oneof resp 
     {
         MeterCompleteInfor meter = 1;
-        ReplyStatusException response = 2;
+        ReplyStatusException error = 2;
     }
+}
+
+// Resposta para a criação de um medidor
+message CreateMeterReply
+{
+    oneof resp
+    {
+        MeterCompleteInfor meter = 1;
+        ReplyStatusException error = 2;
+    }
+}
+
+// Resposta contendo a lista de medidores
+message MeterListReply
+{
+    repeated MeterCompleteInfor meters = 1;
+    optional ReplyStatusException error = 2;
+    
+}
+
+// Resposta contendo todas as linhas
+message AllLinesReply
+{
+    repeated Lines lines = 1;
+    optional ReplyStatusException error = 2;
 }
