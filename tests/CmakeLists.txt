@@ -1,13 +1,9 @@
-# file(GLOB TEST_FILES )
+file(GLOB TEST_FILES ./*.cpp)
 
 add_executable(
     ${PROJECT_NAME}Tests
     
-    test_operations.cpp
-    test_utils.cpp
-    test_energy_meter.cpp
-    test_energy_meter_services.cpp
-    main.cpp
+    ${TEST_FILES}
 )
 
 target_include_directories(
@@ -26,6 +22,7 @@ target_compile_features(
 
 target_link_libraries(
     ${PROJECT_NAME}Tests
+
     PRIVATE
     ${PROJECT_NAME}_lib
 

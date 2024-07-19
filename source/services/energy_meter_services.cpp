@@ -12,23 +12,28 @@ namespace energy
 {
     ees::Operations operations;
 
-    grpc::Status EnergyMeterServiceImpl::CreateMeter(grpc::ServerContext *context, const MeterCompleteInfor *request, MeterCompleteInfor *reply)
+    grpc::Status EnergyMeterServiceImpl::CreateMeter(grpc::ServerContext *context, const MeterCompleteInfor *request, CreateMeterReply *reply)
     {
         try
         {
             ees::EnergyMeter new_meter(request->id(), static_cast<ees::Lines>(request->line()), request->model());
 
-            if (operations.add_new_model(new_meter))
-            {
-                reply->set_id(new_meter.get_id());
-                reply->set_line(static_cast<Lines>(new_meter.get_line()));
-                reply->set_model(new_meter.get_model());
-            }
+            operations.add_new_model(new_meter);
+
+            reply->mutable_meter()->set_id(new_meter.get_id());
+            reply->mutable_meter()->set_line(static_cast<Lines>(new_meter.get_line()));
+            reply->mutable_meter()->set_model(new_meter.get_model());
             return grpc::Status::OK;
         }
-        catch (const ees::NotFound)
+        catch (const expections::AlreadyExists)
         {
-            return grpc::Status(grpc::ALREADY_EXISTS, "Medidor já existe.");
+            reply->set_error(ReplyStatusException::ALREADY_EXISTS_METER);
+            return grpc::Status::OK;
+        }
+        catch (const expections::NotExists)
+        {
+            reply->set_error(ReplyStatusException::NOT_EXISTS_LINE);
+            return grpc::Status::OK;
         }
     }
 
@@ -41,11 +46,12 @@ namespace energy
             reply->mutable_meter()->set_id(found_meter.get_id());
             reply->mutable_meter()->set_line(static_cast<Lines>(found_meter.get_line()));
             reply->mutable_meter()->set_model(found_meter.get_model());
+
             return grpc::Status::OK;
         }
-        catch (const ees::NotFound)
+        catch (const expections::NotFound &)
         {
-            reply->set_response(ReplyStatusException::NOT_FOUND);
+            reply->set_error(ReplyStatusException::NOT_FOUND);
             return grpc::Status::OK;
         }
     }
@@ -66,45 +72,53 @@ namespace energy
 
     grpc::Status EnergyMeterServiceImpl::DeleteMeter(grpc::ServerContext *context, const MeterID *request, ResponseStatus *reply)
     {
-        if (operations.remove_model(request->id()))
+        try
         {
-            reply->set_status(ResponseStatus::COMMAND_EXECUTION_SUCCESSFUL);
+            if (operations.remove_model(request->id()))
+            {
+                reply->set_status(ResponseStatus::COMMAND_EXECUTION_SUCCESSFUL);
+            }
             return grpc::Status::OK;
         }
-        reply->set_status(ResponseStatus::COMMAND_EXECUTION_FAILED);
-
-        return grpc::Status::OK;
+        catch (const std::exception &e)
+        {
+            reply->set_status(ResponseStatus::COMMAND_EXECUTION_FAILED);
+            return grpc::Status::OK;
+        }
     }
 
     grpc::Status EnergyMeterServiceImpl::GetAllLines(grpc::ServerContext *context, const Empty *request, AllLinesReply *reply)
     {
-
-        // Limpa qualquer dado pré-existente em reply
         reply->clear_lines();
 
-        // Adiciona todas as linhas disponíveis de acordo com o enum Lines
         reply->add_lines(Lines::ARES);
         reply->add_lines(Lines::APOLO);
         reply->add_lines(Lines::CRONOS);
         reply->add_lines(Lines::ZEUS);
 
-        // Retorna Status OK para indicar sucesso na operação
         return grpc::Status::OK;
     }
 
     grpc::Status EnergyMeterServiceImpl::GetModelsByLine(grpc::ServerContext *context, const RequestMeterLine *request, MeterListReply *reply)
     {
-        auto models = operations.filter_by_line(ees::to_uppercase(request->meter_line()));
-
-        for (const auto &model : models)
+        try
         {
-            auto *meter_infor = reply->add_meters();
-            meter_infor->set_id(model.get_id());
-            meter_infor->set_line(static_cast<Lines>(model.get_line()));
-            meter_infor->set_model(model.get_model());
-        }
+            auto models = operations.filter_by_line(request->meter_line());
 
-        return grpc::Status::OK;
+            for (const auto &model : models)
+            {
+                auto *meter_infor = reply->add_meters();
+                meter_infor->set_id(model.get_id());
+                meter_infor->set_line(static_cast<Lines>(model.get_line()));
+                meter_infor->set_model(model.get_model());
+            }
+            return grpc::Status::OK;
+        }
+        catch (const expections::NotExists)
+        {
+            reply->set_error(ReplyStatusException::NOT_EXISTS_LINE);
+            return grpc::Status::OK;
+        }
     }
 
 }

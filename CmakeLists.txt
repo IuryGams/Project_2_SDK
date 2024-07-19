@@ -31,8 +31,8 @@
         ${SERVICES_FILES_CPP}
         ${METER_FILES_CPP}
         ./server/server.cpp
-        ./client/src/client.cpp
-        ./client/src/client_method.cpp
+        # ./client/src/client.cpp
+        # ./client/src/client_method.cpp
     )
 
     add_executable(
@@ -81,17 +81,19 @@
     # ----- COMAND FOR GENERATE COVERAGE -----
 
     # Defina o caminho para os arquivos fonte e o executável de teste
+
+    set(COVERAGE_DIR "C:\\Dev\\Projects C++\\PROJECT_INTEGRATION\\coverage")
     set(OpenCppCoverage "C:\\Program Files\\OpenCppCoverage\\OpenCppCoverage.exe")
-    set(SOURCES_DIR C:\\Dev\\Iury\\PROJECT_INTEGRATION\\source) # Arquivos .cpp dentro de source
+    set(SOURCES_DIR "C:\\Dev\\Projects C++\\PROJECT_INTEGRATION\\source") # Arquivos .cpp dentro de source
     set(COVERAGE_OUTPUT_DIR ${CMAKE_SOURCE_DIR}\\coverage) # Caminho para a pasta do Coverage
-    set(TEST_EXECUTABLE_PATH C:\\Dev\\Iury\\PROJECT_INTEGRATION\\build\\tests\\PROJECT_INTEGRATIONTests.exe) # Caminho para o executavel de testes
+    set(TEST_EXECUTABLE_PATH "C:\\Dev\\Projects C++\\PROJECT_INTEGRATION\\build\\tests\\PROJECT_INTEGRATIONTests.exe") # Caminho para o executavel de testes
 
     file(MAKE_DIRECTORY ${COVERAGE_OUTPUT_DIR}) # Criando a pasta coverage se não existir
     
 
     # Comando personalizado para executar OpenCppCoverage
     add_custom_target(coverage
-        COMMAND rmdir /S /Q "C:\\Dev\\Iury\\PROJECT_INTEGRATION\\coverage"
+        COMMAND rmdir /S /Q ${COVERAGE_DIR}
         COMMAND ${OpenCppCoverage} 
             --sources=${SOURCES_DIR}
             --export_type=html:${COVERAGE_OUTPUT_DIR}

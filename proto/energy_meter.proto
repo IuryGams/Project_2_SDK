@@ -98,7 +98,6 @@ message MeterListReply
 {
     repeated MeterCompleteInfor meters = 1;
     optional ReplyStatusException error = 2;
-    
 }
 
 // Resposta contendo todas as linhas

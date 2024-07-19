@@ -19,7 +19,7 @@ namespace ees
             {ees::Lines::UNKNOWN, "UNKNOWN"},
         };
 
-        return lines_to_string.at(line);
+        return to_uppercase(lines_to_string.at(line));
     } // Testing OK
 
     auto convert_proto_enum_to_cpp_enum(int proto_enum_value) -> ees::Lines // Testing OK

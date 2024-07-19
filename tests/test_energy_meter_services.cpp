@@ -8,94 +8,116 @@
 #include "project_exceptions.hpp"
 #include <grpcpp/grpcpp.h>
 
-ees::Operations operations;
-
 TEST_CASE("CreateMeter Test", "[create_meter]") // Testing OK
 {
     // Setup
+    ees::Operations operations;
     energy::EnergyMeterServiceImpl service;
-    ees::Operations op;
 
     grpc::ServerContext context;
     MeterCompleteInfor request;
-    MeterCompleteInfor reply;
+    CreateMeterReply reply;
 
-    SECTION("Successfully create a new meter")
+    SECTION("Create a new meter successfully")
     {
-
-        request.set_id(20);
-        request.set_line(Lines::ARES);
-        request.set_model("Modelo exemplo");
+        request.set_id(18);
+        request.set_line(::Lines::ARES);
+        request.set_model("Model test");
 
         grpc::Status status = service.CreateMeter(&context, &request, &reply);
 
-        if (op.add_new_model({request.id(), static_cast<ees::Lines>(request.line()), request.model()}))
-        {
-            REQUIRE(reply.id() == request.id());
-            REQUIRE(reply.line() == request.line());
-            REQUIRE(reply.model() == request.model());
-            REQUIRE(status.ok());
-        }
+        REQUIRE(status.ok());
+        REQUIRE(reply.has_meter());
+        REQUIRE(reply.meter().id() == request.id());
+        REQUIRE(reply.meter().line() == request.line());
+        REQUIRE(reply.meter().model() == request.model());
     }
 
-    SECTION("Meter already exists")
+    SECTION("Fail to create a meter that already exists")
     {
         request.set_id(1);
-        request.set_line(Lines::ARES);
-        request.set_model("Modelo exemplo");
+        request.set_line(::Lines::ARES);
+        request.set_model("Model test already exists");
 
         grpc::Status status = service.CreateMeter(&context, &request, &reply);
 
-        REQUIRE(grpc::StatusCode::ALREADY_EXISTS);
-        REQUIRE(status.error_message() == "Medidor já existe.");
+        REQUIRE(status.ok());
+        REQUIRE(reply.has_error());
+        REQUIRE(reply.error() == ReplyStatusException::ALREADY_EXISTS_METER);
+    }
+
+    SECTION("Fail to create a meter with a non-existing line")
+    {
+        request.set_id(19);
+        request.set_line(::Lines::UNKNOWN);
+        request.set_model("Model UNKNOWN");
+
+        grpc::Status status = service.CreateMeter(&context, &request, &reply);
+
+        REQUIRE(status.ok());
+        REQUIRE(reply.has_error());
+        REQUIRE(reply.error() == ReplyStatusException::NOT_EXISTS_LINE);
     }
 }
 
 TEST_CASE("ReadMeter", "[read_meter]")
 {
     energy::EnergyMeterServiceImpl service;
+    ees::Operations operations;
     grpc::ServerContext context;
     MeterID request;
-    MeterCompleteInfor reply;
+    ReadMeterReply reply;
 
     SECTION("Success - Meter Found")
     {
-        request.set_id(3);
+        request.set_id(1);
 
-        // grpc::Status status = service.ReadMeter(&context, &request, &reply);
+        grpc::Status status = service.ReadMeter(&context, &request, &reply);
 
-        REQUIRE(reply.id() == request.id());
+        REQUIRE(status.ok());
+        REQUIRE(reply.has_meter());
+        REQUIRE(reply.meter().id() == 1);
+        REQUIRE(reply.meter().line() == ::Lines::ARES);
+        REQUIRE(reply.meter().model() == "7021");
     }
 
     SECTION("NotFound - Meter Not Found")
     {
         request.set_id(9999);
+        grpc::Status status = service.ReadMeter(&context, &request, &reply);
 
-        // REQUIRE_THROWS_AS(service.ReadMeter(&context, &request, &reply), ees::InternalServerErrorThisMeterAlreadyExist);
+        REQUIRE(status.ok());
+        REQUIRE(reply.has_error());
+        REQUIRE(reply.error() == ReplyStatusException::NOT_FOUND);
     }
 }
 
 TEST_CASE("GetAllMeters returns the list of meters", "[all_meters]")
 {
-    ees::Operations op;
-    std::vector<ees::EnergyMeter> meter_list = op.get_meter_list();
+    ees::Operations operations;
     energy::EnergyMeterServiceImpl service;
 
     grpc::ServerContext context;
     Empty request;
     MeterListReply reply;
 
-    grpc::Status status = service.GetAllMeters(&context, &request, &reply);
-
-    REQUIRE(reply.meters_size() > 0);
-
-    for (size_t i = 0; i < reply.meters_size(); i++)
+    SECTION("Get all meters successfully")
     {
-        const MeterCompleteInfor &meter_info = reply.meters(i);
+        grpc::Status status = service.GetAllMeters(&context, &request, &reply);
+        std::vector<ees::EnergyMeter> meter_list = operations.get_meter_list();
 
-        REQUIRE(meter_info.id() == meter_list.at(i).get_id());
-        REQUIRE(meter_info.line() == ees::convert_enum_cpp_to_proto_enum(meter_list.at(i).get_line()));
-        REQUIRE(meter_info.model() == meter_list.at(i).get_model());
+        REQUIRE(status.ok());
+        REQUIRE(reply.meters_size() == meter_list.size());
+
+        for (int i = 0; i < reply.meters_size(); ++i)
+        {
+            const auto &meter_reply = reply.meters(i);
+            const auto &meter = meter_list[i];
+
+            REQUIRE(meter_reply.id() == meter.get_id());
+            REQUIRE(meter_reply.line() == static_cast<::Lines>(convert_enum_cpp_to_proto_enum(meter.get_line())));
+            REQUIRE(meter_reply.model() == meter.get_model());
+        }
     }
 }
 
@@ -155,7 +177,7 @@ TEST_CASE("GetAllLines returns all available lines", "[all_lines]")
     REQUIRE(reply.lines(3) == Lines::ZEUS);
 }
 
-TEST_CASE("GetModelsByLine returns models for a given line", "[]")
+TEST_CASE("GetModelsByLine returns models for a given line", "[get_model]")
 {
     // Setup
     energy::EnergyMeterServiceImpl service;
@@ -164,19 +186,34 @@ TEST_CASE("GetModelsByLine returns models for a given line", "[]")
     RequestMeterLine request;
     MeterListReply reply;
 
-    // Assuming there's a line called "ARES"
-    request.set_meter_line("ARES");
-
-    // Test
-    auto status = service.GetModelsByLine(&context, &request, &reply);
-
-    // Verify
-    REQUIRE(status.ok());
-    REQUIRE(reply.meters_size() > 0);
-    for (int i = 0; i < reply.meters_size(); ++i)
+    SECTION("returns successful list meter")
     {
-        const auto &meter = reply.meters(i);
-        REQUIRE(meter.line() == Lines::ARES);
-        REQUIRE_FALSE(meter.model().empty());
+        request.set_meter_line("ARES");
+
+        // Test
+        auto status = service.GetModelsByLine(&context, &request, &reply);
+
+        // Verify
+        REQUIRE(status.ok());
+        REQUIRE(reply.meters_size() > 0);
+        for (int i = 0; i < reply.meters_size(); ++i)
+        {
+            const auto &meter = reply.meters(i);
+            REQUIRE(meter.line() == Lines::ARES);
+            REQUIRE_FALSE(meter.model().empty());
+        }
+    }
+
+    SECTION("throw expection with no line exists")
+    {
+        request.set_meter_line("Kratos");
+
+        // Test
+        auto status = service.GetModelsByLine(&context, &request, &reply);
+
+        // Verify
+        REQUIRE(status.ok());
+        REQUIRE(reply.has_error());
+        REQUIRE(reply.error() == ReplyStatusException::NOT_EXISTS_LINE);
     }
 }

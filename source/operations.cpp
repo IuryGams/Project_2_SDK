@@ -50,10 +50,7 @@ namespace ees
                                [&id](EnergyMeter &meter)
                                { return meter.get_id() == id; });
 
-        if (it != meter_list.end())
-        {
-            return *it;
-        }
+        if (it != meter_list.end()) return *it;
 
         throw expections::NotFound{};
     }
@@ -61,19 +58,19 @@ namespace ees
     auto Operations::filter_by_line(const std::string &line) -> std::vector<EnergyMeter>
     {
         validations.check_if_line_exists(line);
-        
+
         std::vector<EnergyMeter> filtered_meter_list;
 
         std::copy_if(meter_list.begin(), meter_list.end(), std::back_inserter(filtered_meter_list),
                      [&line](EnergyMeter meter)
-                     { return to_uppercase(convert_enumline_to_string(meter.get_line())) == to_uppercase(line); });
+                     { return convert_enumline_to_string(meter.get_line()) == to_uppercase(line); });
         return filtered_meter_list;
     }
 
     void Operations::add_new_model(const EnergyMeter &new_meter)
     {
-        // if is equal a true -> means there is already a meter.
         validations.check_if_meter_already_exists(new_meter);
+        validations.check_if_is_unknown(convert_enumline_to_string(new_meter.get_line()));
 
         // if is not already exists. then, create.
         meter_list.push_back(new_meter);
@@ -82,11 +79,11 @@ namespace ees
     auto Operations::remove_model(const int &id) -> bool // DELETE
     {
         auto it = std::find_if(meter_list.begin(), meter_list.end(), [id](const EnergyMeter &meter)
-                               { return meter.get_id() == id; });
+                { return meter.get_id() == id; });
 
         if (it != meter_list.end())
         {
-            meter_list.erase(it); // Remove  o medidor encontrado
+            meter_list.erase(it);
             return true;
         }
         throw expections::NotFound{};

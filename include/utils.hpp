@@ -15,6 +15,4 @@ namespace ees {
     auto convert_enum_cpp_to_proto_enum(ees::Lines line) -> int;
     auto to_uppercase(const std::string &text) -> std::string;
 
-
-
 } // namespace ees
