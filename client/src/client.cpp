@@ -2,36 +2,50 @@
 #include "client_method.hpp"
 #include "utils.hpp"
 
-
 namespace energy
 {
     void RunClient()
     {
         EnergyMeterClient client(grpc::CreateChannel("localhost:50051", grpc::InsecureChannelCredentials()));
 
-        MeterCompleteInfor meter;
-        meter.set_line(Lines::ARES);
-        meter.set_model("Model X");
+        // Cria um novo medidor de energia
+        if (client.CreateMeter(18, static_cast<int>(Lines::ARES), "Model X"))
+        {
+            std::cout << "Medidor criado com sucesso." << std::endl;
+        }
+        else
+        {
+            std::cout << "Falha ao criar o medidor." << std::endl;
+        }
 
-        // Cliente faz uma requisição para criar um Medidor de energia.
-        std::cout << "***** INICIO CREATEMETER *****" << std::endl;
-        MeterCompleteInfor response = client.CreateMeter(meter);
-        std::cout << "Medidor de energia criado.\n";
-        std::cout << "Response: " << response.model() << " Line: " << response.line() << std::endl;
-        std::cout << "***** FINAL CREATEMETER *****" << std::endl;
+        // Lê os detalhes do medidor criado
+        if (client.ReadMeter(1))
+        {
+            std::cout << "Leitura do medidor realizada com sucesso." << std::endl;
+        }
+        else
+        {
+            std::cout << "Falha ao ler o medidor." << std::endl;
+        }
 
-        // Cliente faz uma requisição para saber informações de um Medidor pelo ID.
-        MeterID meter_id;
-        meter_id.set_id(1);
-        std::cout << "***** INICIO READMETER *****" << std::endl;
-        response = client.ReadMeter(meter_id);
-        std::cout << "Dados retornados: response: " << response.model() << std::endl;
-        std::cout << "***** FINAL READMETER *****" << std::endl;
+        // Obtém todos os medidores
+        client.GetAllMeters();
 
-        // Cliente deleta uma Medidor de energia da lista pelo ID.
-        std::cout << "***** INICIO DELETEMETER *****" << std::endl;
-        client.DeleteMeter(meter_id);
-        std::cout << "***** FINAL DELETEMETER *****" << std::endl;
+        // Deleta o medidor criado
+        if (client.DeleteMeter(1))
+        {
+            std::cout << "Medidor deletado com sucesso." << std::endl;
+        }
+        else
+        {
+            std::cout << "Falha ao deletar o medidor." << std::endl;
+        }
+
+        // Obtém todas as linhas disponíveis
+        client.GetAllLines();
+
+        // Obtém todos os modelos por linha
+        client.GetModelsByLine("ARES");
     }
 
 }

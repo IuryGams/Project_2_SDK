@@ -10,9 +10,9 @@ int main ()
     setlocale(LC_ALL, "pt_BR.UTF-8");
 
     std::thread server_thread(energy::RunServer);
-    // std::thread client_thread(energy::RunClient);
+    std::thread client_thread(energy::RunClient);
 
-    // client_thread.join();
+    client_thread.join();
     server_thread.join();
 
     std::cout << "Programa encerrado!\n";

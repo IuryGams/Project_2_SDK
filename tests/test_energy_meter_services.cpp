@@ -8,6 +8,36 @@
 #include "project_exceptions.hpp"
 #include <grpcpp/grpcpp.h>
 
+
+TEST_CASE("GetAllMeters returns the list of meters", "[all_meters]")
+{
+    ees::Operations operations;
+    energy::EnergyMeterServiceImpl service;
+
+    grpc::ServerContext context;
+    Empty request;
+    MeterListReply reply;
+
+    SECTION("Get all meters successfully")
+    {
+        grpc::Status status = service.GetAllMeters(&context, &request, &reply);
+        std::vector<ees::EnergyMeter> meter_list = operations.get_meter_list();
+
+        REQUIRE(status.ok());
+        REQUIRE(reply.meters_size() == meter_list.size());
+
+        for (int i = 0; i < reply.meters_size(); ++i)
+        {
+            const auto &meter_reply = reply.meters(i);
+            const auto &meter = meter_list[i];
+
+            REQUIRE(meter_reply.id() == meter.get_id());
+            REQUIRE(meter_reply.line() == static_cast<::Lines>(convert_enum_cpp_to_proto_enum(meter.get_line())));
+            REQUIRE(meter_reply.model() == meter.get_model());
+        }
+    }
+}
+
 TEST_CASE("CreateMeter Test", "[create_meter]") // Testing OK
 {
     // Setup
@@ -92,34 +122,6 @@ TEST_CASE("ReadMeter", "[read_meter]")
     }
 }
 
-TEST_CASE("GetAllMeters returns the list of meters", "[all_meters]")
-{
-    ees::Operations operations;
-    energy::EnergyMeterServiceImpl service;
-
-    grpc::ServerContext context;
-    Empty request;
-    MeterListReply reply;
-
-    SECTION("Get all meters successfully")
-    {
-        grpc::Status status = service.GetAllMeters(&context, &request, &reply);
-        std::vector<ees::EnergyMeter> meter_list = operations.get_meter_list();
-
-        REQUIRE(status.ok());
-        REQUIRE(reply.meters_size() == meter_list.size());
-
-        for (int i = 0; i < reply.meters_size(); ++i)
-        {
-            const auto &meter_reply = reply.meters(i);
-            const auto &meter = meter_list[i];
-
-            REQUIRE(meter_reply.id() == meter.get_id());
-            REQUIRE(meter_reply.line() == static_cast<::Lines>(convert_enum_cpp_to_proto_enum(meter.get_line())));
-            REQUIRE(meter_reply.model() == meter.get_model());
-        }
-    }
-}
 
 TEST_CASE("DeleteMeter removes the meter and returns success", "[delete_meter]")
 {
