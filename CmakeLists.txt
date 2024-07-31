@@ -21,8 +21,6 @@
         LANGUAGES CXX
     )
 
-    find_package(GTest CONFIG REQUIRED)
-
     include_directories(${GTEST_INCLUDE_DIRS})
 
     set(VCPKG_JSON_TIMESTAMP_PREV "${vcpkg_json_timestamp}" CACHE STRING "" FORCE)       
@@ -43,7 +41,6 @@
         ${METER_FILES_CPP}
         ./server/server.cpp
         ./client/src/client.cpp
-        ./client/src/client_method.cpp
         ./tests/GRPCTestFixture/GRPCTestFixture.cpp
     )
 
@@ -59,10 +56,8 @@
         PUBLIC
             ./include
             ./server
-            ./include/services
-            ./tests/GRPCTestFixture/include
-            ./include/meters
-            ./client/include
+            ./tests
+            ./client
             ${CMAKE_CURRENT_BINARY_DIR}/proto
     )
 
@@ -85,10 +80,6 @@
 
         PUBLIC
             ${PROJECT_NAME}_lib
-        PRIVATE
-            GTest::gtest
-            GTest::gtest_main
-            GTest::gmock
     )
 
 

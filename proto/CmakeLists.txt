@@ -1,7 +1,5 @@
 find_package(Protobuf CONFIG REQUIRED)
 find_package(gRPC CONFIG REQUIRED)
-find_package(gtest CONFIG REQUIRED)
-
 
 file(GLOB PROTO_FILES ./*.proto)
 

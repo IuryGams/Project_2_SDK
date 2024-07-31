@@ -1,5 +1,4 @@
 #include "enums.hpp"
-#include "client_method.hpp"
 #include "utils.hpp"
 #include "client.hpp"
 
