@@ -1,20 +1,31 @@
 #include <iostream>
-#include "energy_meter_services.hpp"
 #include "server.hpp"
 
 namespace energy
 {
-    void RunServer()
+    static const std::string server_address_ = "0.0.0.0:50051";
+
+    void Server::RunServer()
     {
-        std::string server_address("0.0.0.0:50051");
-        energy::EnergyMeterServiceImpl service;
-
         grpc::ServerBuilder builder;
-        builder.AddListeningPort(server_address, grpc::InsecureServerCredentials());
-        builder.RegisterService(&service);
+        builder.AddListeningPort(server_address_, grpc::InsecureServerCredentials());
+        builder.RegisterService(&service_);
 
-        std::unique_ptr<grpc::Server> server(builder.BuildAndStart());
-        std::cout << "Server rodando em " << server_address << std::endl;
-        server->Wait();
+        server_ = builder.BuildAndStart();
+        std::cout << "Server is running on the port " << server_address_ << std::endl;
+        server_->Wait();
     }
+
+    void Server::StopServer()
+    {
+        if (server_)
+        {
+            server_->Shutdown();
+            server_->Wait();
+            server_.reset();
+            std::cout << "Server is down!\n";
+        }
+
+    }
+
 }

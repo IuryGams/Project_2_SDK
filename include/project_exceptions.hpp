@@ -1,6 +1,6 @@
 #include <exception>
 
-namespace expections
+namespace exceptions
 {
     struct ThisMeterAlreadyExist : public std::exception
     {
@@ -41,4 +41,4 @@ namespace expections
             return "UnknownError";
         }
     };
-} // namespace expections
+} // namespace exceptions

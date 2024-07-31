@@ -5,26 +5,25 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "debug",
+            "name": "debug-test",
             "type": "cppvsdbg",
             "request": "launch",
-            "program": "${workspaceFolder}/build/PROJECT_INTEGRATION.exe",
-            "args": [],
+            "program": "${workspaceFolder}/build/tests/PROJECT_INTEGRATIONTests",
+            "args": ["[system_client]"],
             "stopAtEntry": false,
             "cwd": "${workspaceFolder}/build/",
             "environment": [],
             "console": "integratedTerminal"
         },
         {
-            "name": "debug-tests",
+            "name": "debug",
             "type": "cppvsdbg",
             "request": "launch",
-            "program": "${workspaceFolder}/build/tests/PROJECT_INTEGRATIONTests.exe",
+            "program": "${workspaceFolder}/build/tests/PROJECT_INTEGRATIONTests",
             "args": [],
             "stopAtEntry": false,
             "cwd": "${workspaceFolder}/build/",
             "environment": [],
             "console": "integratedTerminal"
-        }
-    ]
+        }]
     }

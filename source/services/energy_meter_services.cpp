@@ -10,27 +10,25 @@
 
 namespace energy
 {
-    ees::Operations operations;
-
-    grpc::Status EnergyMeterServiceImpl::CreateMeter(grpc::ServerContext *context, const MeterCompleteInfor *request, CreateMeterReply *reply)
+    grpc::Status EnergyMeterServiceImpl::CreateMeter(grpc::ServerContext *context, const MeterCompleteInfo *request, CreateMeterReply *reply)
     {
         try
         {
             ees::EnergyMeter new_meter(request->id(), static_cast<ees::Lines>(request->line()), request->model());
 
-            operations.add_new_model(new_meter);
+            ees::Operations::add_new_model(new_meter);
 
             reply->mutable_meter()->set_id(new_meter.get_id());
             reply->mutable_meter()->set_line(static_cast<Lines>(new_meter.get_line()));
             reply->mutable_meter()->set_model(new_meter.get_model());
             return grpc::Status::OK;
         }
-        catch (const expections::AlreadyExists)
+        catch (const exceptions::AlreadyExists)
         {
             reply->set_error(ReplyStatusException::ALREADY_EXISTS_METER);
             return grpc::Status::OK;
         }
-        catch (const expections::NotExists)
+        catch (const exceptions::NotExists)
         {
             reply->set_error(ReplyStatusException::NOT_EXISTS_LINE);
             return grpc::Status::OK;
@@ -41,7 +39,7 @@ namespace energy
     {
         try
         {
-            ees::EnergyMeter found_meter = operations.find_meter_by_id(static_cast<int>(request->id()));
+            ees::EnergyMeter found_meter = ees::Operations::find_meter_by_id(static_cast<int>(request->id()));
 
             reply->mutable_meter()->set_id(found_meter.get_id());
             reply->mutable_meter()->set_line(static_cast<Lines>(found_meter.get_line()));
@@ -49,7 +47,7 @@ namespace energy
 
             return grpc::Status::OK;
         }
-        catch (const expections::NotFound &)
+        catch (const exceptions::NotFound &)
         {
             reply->set_error(ReplyStatusException::NOT_FOUND);
             return grpc::Status::OK;
@@ -58,11 +56,11 @@ namespace energy
 
     grpc::Status EnergyMeterServiceImpl::GetAllMeters(grpc::ServerContext *context, const Empty *request, MeterListReply *reply)
     {
-        std::vector<ees::EnergyMeter> list_meters = operations.get_meter_list();
+        std::vector<ees::EnergyMeter> list_meters = ees::Operations::get_meter_list();
 
         for (const auto &meter : list_meters)
         {
-            MeterCompleteInfor *meter_info = reply->add_meters();
+            MeterCompleteInfo *meter_info = reply->add_meters();
             meter_info->set_id(meter.get_id());
             meter_info->set_line(static_cast<::Lines>(convert_enum_cpp_to_proto_enum(meter.get_line())));
             meter_info->set_model(meter.get_model());
@@ -74,7 +72,7 @@ namespace energy
     {
         try
         {
-            if (operations.remove_model(request->id()))
+            if (ees::Operations::remove_model(request->id()))
             {
                 reply->set_status(ResponseStatus::COMMAND_EXECUTION_SUCCESSFUL);
             }
@@ -103,18 +101,18 @@ namespace energy
     {
         try
         {
-            auto models = operations.filter_by_line(request->meter_line());
+            auto models = ees::Operations::filter_by_line(request->meter_line());
 
             for (const auto &model : models)
             {
-                auto *meter_infor = reply->add_meters();
-                meter_infor->set_id(model.get_id());
-                meter_infor->set_line(static_cast<Lines>(model.get_line()));
-                meter_infor->set_model(model.get_model());
+                auto *meter_info = reply->add_meters();
+                meter_info->set_id(model.get_id());
+                meter_info->set_line(static_cast<Lines>(model.get_line()));
+                meter_info->set_model(model.get_model());
             }
             return grpc::Status::OK;
         }
-        catch (const expections::NotExists)
+        catch (const exceptions::NotExists)
         {
             reply->set_error(ReplyStatusException::NOT_EXISTS_LINE);
             return grpc::Status::OK;

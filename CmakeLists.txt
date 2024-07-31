@@ -9,7 +9,8 @@
     endif()
 
     # Configurando o Cmake para utilizar as configurações do vcpkg
-    set(CMAKE_TOOLCHAIN_FILE C:\\Dev\\vcpkg\\scripts\\buildsystems\\vcpkg.cmake)
+    set(CMAKE_PREFIX_PATH "C:/Dev/vcpkg/installed/x64-windows")
+    set(CMAKE_TOOLCHAIN_FILE "C:/Dev/vcpkg/scripts/buildsystems/vcpkg.cmake")
 
     set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
     set(CMAKE_CXX_STANDARD 17)
@@ -20,9 +21,12 @@
         LANGUAGES CXX
     )
 
+    find_package(GTest CONFIG REQUIRED)
+
+    include_directories(${GTEST_INCLUDE_DIRS})
+
     set(VCPKG_JSON_TIMESTAMP_PREV "${vcpkg_json_timestamp}" CACHE STRING "" FORCE)       
     set(nlohmann-json_IMPLICIT_CONVERSIONS OFF)
-
 
     add_subdirectory(proto)
     add_subdirectory(tests)
@@ -40,6 +44,7 @@
         ./server/server.cpp
         ./client/src/client.cpp
         ./client/src/client_method.cpp
+        ./tests/GRPCTestFixture/GRPCTestFixture.cpp
     )
 
     add_executable(
@@ -55,6 +60,7 @@
             ./include
             ./server
             ./include/services
+            ./tests/GRPCTestFixture/include
             ./include/meters
             ./client/include
             ${CMAKE_CURRENT_BINARY_DIR}/proto
@@ -79,6 +85,10 @@
 
         PUBLIC
             ${PROJECT_NAME}_lib
+        PRIVATE
+            GTest::gtest
+            GTest::gtest_main
+            GTest::gmock
     )
 
 
@@ -89,11 +99,11 @@
 
     # Defina o caminho para os arquivos fonte e o executável de teste
 
-    set(COVERAGE_DIR "C:\\Dev\\Projects C++\\PROJECT_INTEGRATION\\coverage")
+    set(COVERAGE_DIR "C:\\Dev\\Iury\\PROJECT_INTEGRATION\\coverage")
     set(OpenCppCoverage "C:\\Program Files\\OpenCppCoverage\\OpenCppCoverage.exe")
-    set(SOURCES_DIR "C:\\Dev\\Projects C++\\PROJECT_INTEGRATION\\source") # Arquivos .cpp dentro de source
-    set(COVERAGE_OUTPUT_DIR ${CMAKE_SOURCE_DIR}\\coverage) # Caminho para a pasta do Coverage
-    set(TEST_EXECUTABLE_PATH "C:\\Dev\\Projects C++\\PROJECT_INTEGRATION\\build\\tests\\PROJECT_INTEGRATIONTests.exe") # Caminho para o executavel de testes
+    set(SOURCES_DIR "C:\\Dev\\Iury\\PROJECT_INTEGRATION\\source") # Arquivos .cpp dentro de source
+    set(COVERAGE_OUTPUT_DIR "${CMAKE_SOURCE_DIR}\\coverage") # Caminho para a pasta do Coverage
+    set(TEST_EXECUTABLE_PATH "C:\\Dev\\Iury\\PROJECT_INTEGRATION\\build\\tests\\PROJECT_INTEGRATIONTests.exe") # Caminho para o executavel de testes
 
     file(MAKE_DIRECTORY ${COVERAGE_OUTPUT_DIR}) # Criando a pasta coverage se não existir
     

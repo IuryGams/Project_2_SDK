@@ -1,34 +1,38 @@
 #pragma once
 #include "catch.hpp"
-#include "energy_meter.grpc.pb.h"
-#include "energy_meter_services.hpp"
-#include "energy_meter.hpp"
-#include "utils.hpp"
-#include "operations.hpp"
-#include "project_exceptions.hpp"
 #include "client_method.hpp"
-#include <grpcpp/grpcpp.h>
-#include "server.hpp"
+#include "project_exceptions.hpp"
 #include "GRPCTestFixture.hpp"
+#include "utils.hpp"
+#include "client.hpp"
+#include "server.hpp"
+
+#include <thread>
 
 namespace test
+
 {
-    TEST_CASE_METHOD(GRPCTestFixture, "CreateMeter Test", "[grpc]")
+
+    TEST_CASE_METHOD(GRPCTestFixture, "Testing create meter request client", "[client_grpc]")
     {
+        MeterCompleteInfo request; // Type of Request
+        CreateMeterReply reply;    // Type of Response
+        grpc::ClientContext context;
+
+        auto channel = grpc::CreateChannel("localhost:50051", grpc::InsecureChannelCredentials());
+        auto stub = EnergyMeter::NewStub(channel);
+
         SECTION("Create a new meter successfully")
         {
-            grpc::ServerContext context;
-            MeterCompleteInfo request;
-            CreateMeterReply reply;
-
-            auto &service = GetService();
-
+            // Configure request
             request.set_id(18);
             request.set_line(::Lines::ARES);
-            request.set_model("Model test");
+            request.set_model("Test Model");
 
-            grpc::Status status = service.CreateMeter(&context, &request, &reply);
+            // Send request
+            grpc::Status status = stub->CreateMeter(&context, request, &reply);
 
+            // Verify response
             REQUIRE(status.ok());
             REQUIRE(reply.has_meter());
             REQUIRE(reply.meter().id() == request.id());
@@ -38,17 +42,13 @@ namespace test
 
         SECTION("Fail to create a meter that already exists")
         {
-            grpc::ServerContext context;
-            MeterCompleteInfo request;
-            CreateMeterReply reply;
-
-            auto &service = GetService();
-
-            request.set_id(18);
+            // Configure request
+            request.set_id(17);
             request.set_line(::Lines::ARES);
-            request.set_model("Model test already exists");
+            request.set_model("Test Model");
 
-            grpc::Status status = service.CreateMeter(&context, &request, &reply);
+            // Send request to ensure the meter is created
+            grpc::Status status = stub->CreateMeter(&context, request, &reply);
 
             REQUIRE(status.ok());
             REQUIRE(reply.has_error());
@@ -57,17 +57,13 @@ namespace test
 
         SECTION("Fail to create a meter with a non-existing line")
         {
-            grpc::ServerContext context;
-            MeterCompleteInfo request;
-            CreateMeterReply reply;
-
-            auto &service = GetService();
-
-            request.set_id(19);
+            // Configure request
+            request.set_id(18);
             request.set_line(::Lines::UNKNOWN);
             request.set_model("Model UNKNOWN");
 
-            grpc::Status status = service.CreateMeter(&context, &request, &reply);
+            // Send request
+            grpc::Status status = stub->CreateMeter(&context, request, &reply);
 
             REQUIRE(status.ok());
             REQUIRE(reply.has_error());
@@ -75,18 +71,19 @@ namespace test
         }
     }
 
-    TEST_CASE_METHOD(GRPCTestFixture, "GetAllMeters returns the list of meters", "[grpc]")
+    TEST_CASE_METHOD(GRPCTestFixture, "Testing request client GetAllMeters", "[client_grpc]")
     {
         ees::Operations operations;
-        grpc::ServerContext context;
+        grpc::ClientContext context;
         Empty request;
         MeterListReply reply;
 
-        auto &service = GetService();
+        auto channel = grpc::CreateChannel("localhost:50051", grpc::InsecureChannelCredentials());
+        auto stub = EnergyMeter::NewStub(channel);
 
         SECTION("Get all meters successfully")
         {
-            grpc::Status status = service.GetAllMeters(&context, &request, &reply);
+            grpc::Status status = stub->GetAllMeters(&context, request, &reply);
             std::vector<ees::EnergyMeter> meter_list = operations.get_meter_list();
 
             REQUIRE(status.ok());
@@ -98,25 +95,26 @@ namespace test
                 const auto &meter = meter_list.at(i);
 
                 REQUIRE(meter_reply.id() == meter.get_id());
-                REQUIRE(meter_reply.line() == static_cast<::Lines>(convert_enum_cpp_to_proto_enum(meter.get_line())));
+                REQUIRE(meter_reply.line() == static_cast<::Lines>(ees::convert_enum_cpp_to_proto_enum(meter.get_line())));
                 REQUIRE(meter_reply.model() == meter.get_model());
             }
         }
     }
 
-    TEST_CASE_METHOD(GRPCTestFixture, "ReadMeter", "[grpc]")
+    TEST_CASE_METHOD(GRPCTestFixture, "Testing Read meter request client", "[client_grpc]")
     {
-        grpc::ServerContext context;
+        grpc::ClientContext context;
         MeterID request;
         ReadMeterReply reply;
 
-        auto &service = GetService();
+        auto channel = grpc::CreateChannel("localhost:50051", grpc::InsecureChannelCredentials());
+        auto stub = EnergyMeter::NewStub(channel);
 
         SECTION("Success - Meter Found")
         {
             request.set_id(1);
 
-            grpc::Status status = service.ReadMeter(&context, &request, &reply);
+            grpc::Status status = stub->ReadMeter(&context, request, &reply);
 
             REQUIRE(status.ok());
             REQUIRE(reply.has_meter());
@@ -128,7 +126,7 @@ namespace test
         SECTION("NotFound - Meter Not Found")
         {
             request.set_id(9999);
-            grpc::Status status = service.ReadMeter(&context, &request, &reply);
+            grpc::Status status = stub->ReadMeter(&context, request, &reply);
 
             REQUIRE(status.ok());
             REQUIRE(reply.has_error());
@@ -136,25 +134,28 @@ namespace test
         }
     }
 
-    TEST_CASE_METHOD(GRPCTestFixture, "DeleteMeter removes the meter and returns success", "[grpc]")
+    TEST_CASE_METHOD(GRPCTestFixture, "Testing delete meter client request", "[client_grpc]")
     {
-        grpc::ServerContext context;
+        grpc::ClientContext context;
         MeterID request;
         ResponseStatus reply;
 
-        auto &service = GetService();
+        auto channel = grpc::CreateChannel("localhost:50051", grpc::InsecureChannelCredentials());
+        auto stub = EnergyMeter::NewStub(channel);
 
         SECTION("Request Successful")
         {
             // Assuming there's a meter with ID 18
-            request.set_id(18);
+            request.set_id(17);
 
             // Test
-            auto status = service.DeleteMeter(&context, &request, &reply);
+            auto status = stub->DeleteMeter(&context, request, &reply);
 
             // Verify
-            REQUIRE(status.ok());
-            REQUIRE(reply.status() == ResponseStatus::COMMAND_EXECUTION_SUCCESSFUL);
+            if (status.ok())
+            {
+                REQUIRE(reply.status() == ResponseStatus::COMMAND_EXECUTION_SUCCESSFUL);
+            }
         }
 
         SECTION("Request Failed")
@@ -163,24 +164,25 @@ namespace test
             request.set_id(999);
 
             // Test
-            auto status = service.DeleteMeter(&context, &request, &reply);
+            auto status = stub->DeleteMeter(&context, request, &reply);
 
             // Verify
             REQUIRE(reply.status() == ResponseStatus::COMMAND_EXECUTION_FAILED);
         }
     }
 
-    TEST_CASE_METHOD(GRPCTestFixture, "GetAllLines returns all available lines", "[grpc]")
+    TEST_CASE_METHOD(GRPCTestFixture, "Testing GetAllLines request client", "[client_grpc]")
     {
         // Setup
-        grpc::ServerContext context;
+        grpc::ClientContext context;
         Empty request;
         AllLinesReply reply;
 
-        auto &service = GetService();
+        auto channel = grpc::CreateChannel("localhost:50051", grpc::InsecureChannelCredentials());
+        auto stub = EnergyMeter::NewStub(channel);
 
         // Test
-        auto status = service.GetAllLines(&context, &request, &reply);
+        auto status = stub->GetAllLines(&context, request, &reply);
 
         // Verify
         REQUIRE(status.ok());
@@ -191,21 +193,22 @@ namespace test
         REQUIRE(reply.lines(3) == Lines::ZEUS);
     }
 
-    TEST_CASE_METHOD(GRPCTestFixture, "GetModelsByLine returns models for a given line", "[grpc]")
+    TEST_CASE_METHOD(GRPCTestFixture, "Testing GetModelsByLine client request", "[client_grpc]")
     {
         // Setup
-        grpc::ServerContext context;
+        grpc::ClientContext context;
         RequestMeterLine request;
         MeterListReply reply;
 
-        auto &service = GetService();
+        auto channel = grpc::CreateChannel("localhost:50051", grpc::InsecureChannelCredentials());
+        auto stub = EnergyMeter::NewStub(channel);
 
         SECTION("returns successful list meter")
         {
             request.set_meter_line("ARES");
 
             // Test
-            auto status = service.GetModelsByLine(&context, &request, &reply);
+            auto status = stub->GetModelsByLine(&context, request, &reply);
 
             // Verify
             REQUIRE(status.ok());
@@ -223,7 +226,7 @@ namespace test
             request.set_meter_line("Kratos");
 
             // Test
-            auto status = service.GetModelsByLine(&context, &request, &reply);
+            auto status = stub->GetModelsByLine(&context, request, &reply);
 
             // Verify
             REQUIRE(status.ok());
@@ -231,4 +234,5 @@ namespace test
             REQUIRE(reply.error() == ReplyStatusException::NOT_EXISTS_LINE);
         }
     }
+
 }

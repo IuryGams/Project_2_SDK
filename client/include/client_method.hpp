@@ -15,10 +15,10 @@ namespace energy
 
         bool CreateMeter(int id, int line, const std::string &model);
         bool ReadMeter(int id);
-        void GetAllMeters();
+        std::vector<MeterCompleteInfo> GetAllMeters();
         bool DeleteMeter(int id);
         void GetAllLines();
-        void GetModelsByLine(std::string line);
+        void GetModelsByLine(const std::string &line);
 
     private:
         std::unique_ptr<EnergyMeter::Stub> stub_;

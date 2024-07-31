@@ -1,5 +1,6 @@
 find_package(Protobuf CONFIG REQUIRED)
 find_package(gRPC CONFIG REQUIRED)
+find_package(gtest CONFIG REQUIRED)
 
 
 file(GLOB PROTO_FILES ./*.proto)
@@ -17,7 +18,7 @@ target_link_libraries(
     PUBLIC
         protobuf::libprotobuf
         gRPC::grpc
-        gRPC::grpc++   
+        gRPC::grpc++
 )
 
 target_include_directories(

@@ -11,7 +11,7 @@ namespace energy
     public:
         // Okay
         grpc::Status CreateMeter(
-            grpc::ServerContext *context, const MeterCompleteInfor *request, CreateMeterReply *reply) override;
+            grpc::ServerContext *context, const MeterCompleteInfo *request, CreateMeterReply *reply) override;
         // Okay
         grpc::Status GetAllMeters(
             grpc::ServerContext *context, const Empty *request, MeterListReply *reply) override;

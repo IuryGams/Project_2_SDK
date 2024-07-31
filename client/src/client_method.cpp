@@ -1,6 +1,8 @@
 #include "client_method.hpp"
 #include "enums.hpp"
 #include "utils.hpp"
+#include "operations.hpp"
+#include "project_exceptions.hpp"
 
 namespace energy
 {
@@ -11,7 +13,7 @@ namespace energy
     // CreateMeter
     bool EnergyMeterClient::CreateMeter(int id, int line, const std::string &model)
     {
-        MeterCompleteInfor request;
+        MeterCompleteInfo request;
         request.set_id(id);
         request.set_line(static_cast<Lines>(line));
         request.set_model(model);
@@ -71,26 +73,25 @@ namespace energy
     }
 
     // GetAllMeters
-    void EnergyMeterClient::GetAllMeters()
+    std::vector<MeterCompleteInfo> EnergyMeterClient::GetAllMeters()
     {
         Empty request;
         MeterListReply reply;
         grpc::ClientContext context;
 
         grpc::Status status = stub_->GetAllMeters(&context, request, &reply);
+
+        std::vector<MeterCompleteInfo> meters_reply;
+
         if (status.ok())
         {
             for (const auto &meter : reply.meters())
             {
-                std::cout << "{\n";
-                std::cout << "  ID: " << meter.id() << ", Line: " << meter.line() << ", Model: " << meter.model() << std::endl;
-                std::cout << "},\n";
+                meters_reply.push_back(meter);
             }
+            return meters_reply;
         }
-        else
-        {
-            std::cout << "Não foi possivel retornar a lista de medidores" << std::endl;
-        }
+        return meters_reply;
     }
 
     // DeleteMeter
@@ -137,7 +138,7 @@ namespace energy
     }
 
     // GetModelsByLine
-    void EnergyMeterClient::GetModelsByLine(std::string line)
+    void EnergyMeterClient::GetModelsByLine(const std::string &line)
     {
         RequestMeterLine request;
         request.set_meter_line(line);

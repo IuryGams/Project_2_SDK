@@ -2,14 +2,14 @@
 #include <grpcpp/grpcpp.h>
 #include "energy_meter.grpc.pb.h"
 #include "enums.hpp"
+#include "client_method.hpp"
 
 namespace energy
 {
-    class EnergyMeterClient
+    class Client
     {
     public:
-        EnergyMeterClient(std::shared_ptr<grpc::Channel> channel);
+        auto CreateClient() -> std::unique_ptr<EnergyMeter::Stub>;
     };
 
-    void RunClient();
 }

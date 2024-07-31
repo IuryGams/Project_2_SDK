@@ -8,7 +8,7 @@ service EnergyMeter
     
     rpc GetModelsByLine(RequestMeterLine) returns (MeterListReply);
 
-    rpc CreateMeter(MeterCompleteInfor) returns (CreateMeterReply);
+    rpc CreateMeter(MeterCompleteInfo) returns (CreateMeterReply);
     rpc ReadMeter(MeterID) returns (ReadMeterReply);
     rpc DeleteMeter(MeterID) returns (ResponseStatus);
 }
@@ -54,7 +54,7 @@ message MeterID
 }
 
 // Informação completa de um medidor
-message MeterCompleteInfor
+message MeterCompleteInfo
 {
     int32 id = 1;
     Lines line = 2;
@@ -78,7 +78,7 @@ message ReadMeterReply
 {
     oneof resp 
     {
-        MeterCompleteInfor meter = 1;
+        MeterCompleteInfo meter = 1;
         ReplyStatusException error = 2;
     }
 }
@@ -88,7 +88,7 @@ message CreateMeterReply
 {
     oneof resp
     {
-        MeterCompleteInfor meter = 1;
+        MeterCompleteInfo meter = 1;
         ReplyStatusException error = 2;
     }
 }
@@ -96,7 +96,7 @@ message CreateMeterReply
 // Resposta contendo a lista de medidores
 message MeterListReply
 {
-    repeated MeterCompleteInfor meters = 1;
+    repeated MeterCompleteInfo meters = 1;
     optional ReplyStatusException error = 2;
 }
 
